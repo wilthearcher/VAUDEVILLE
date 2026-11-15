@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -46,8 +45,8 @@ public void BeginNewCampaign(string campaignID)
     completedNPCs.Clear();
     activeNPCs.Clear();
 
-    if (LoyaltyManagerTeste.Instance != null)
-        LoyaltyManagerTeste.Instance.ResetLoyalty();
+    if (LoyaltyManager.Instance != null)
+        LoyaltyManager.Instance.ResetLoyalty();
 
     SaveInteractions();
 }
@@ -81,8 +80,8 @@ public void BeginNewCampaign(string campaignID)
             }
         }
 
-        if (LoyaltyManagerTeste.Instance != null)
-            LoyaltyManagerTeste.Instance.LoadCampaign(campaignID);
+        if (LoyaltyManager.Instance != null)
+            LoyaltyManager.Instance.LoadCampaign(campaignID);
     }
 
     public bool TryStartInteraction(string npcID)
@@ -138,7 +137,7 @@ public void BeginNewCampaign(string campaignID)
         PlayerPrefs.SetString(SaveKey, json);
         PlayerPrefs.Save();
 
-        if (LoyaltyManagerTeste.Instance != null)
-            LoyaltyManagerTeste.Instance.SaveCampaign(currentCampaignID);
+        if (LoyaltyManager.Instance != null)
+            LoyaltyManager.Instance.SaveCampaign(currentCampaignID);
     }
 }

@@ -1,98 +1,103 @@
-
-using System;
-using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class LoyaltyManager : MonoBehaviour
 {
     public static LoyaltyManager Instance { get; private set; }
 
-    private const float MIN_LOYALTY = -15.0f;
-    private const float MAX_LOYALTY = 15.0f;
+    private const int MIN_LOYALTY = -15;
+    private const int MAX_LOYALTY = 15;
 
-    [SerializeField]
-    private float currentLoyalty = 0.0f;
+    [SerializeField] private int loyalty = 0;
 
-    public float CurrentLoyalty => currentLoyalty;
+    public int CurrentLoyalty => loyalty;
 
-    public event Action<float> OnLoyaltyChanged;
-
-    private readonly HashSet<string> allowedNPCs = new HashSet<string>
-    {
-        "npc_01",
-        "npc_02",
-        "npc_03"
-    };
+    public event Action<int> OnLoyaltyChanged;
 
     private void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Debug.LogError("Já existe um LoyaltyManager na cena.");
             Destroy(gameObject);
             return;
         }
 
         Instance = this;
-        currentLoyalty = 0.0f;
+        DontDestroyOnLoad(gameObject);
 
-        Debug.Log("LoyaltyManager iniciado. Pontuação: 0.0");
+        loyalty = Mathf.Clamp(
+            loyalty,
+            MIN_LOYALTY,
+            MAX_LOYALTY
+        );
     }
 
-    private void OnDestroy()
+    public void ChangeLoyalty(int amount)
     {
-        if (Instance == this)
-        {
-            Instance = null;
-        }
-    }
+        int previousValue = loyalty;
 
-    public bool CanAffectLoyalty(string npcID)
-    {
-        return !string.IsNullOrEmpty(npcID) &&
-               allowedNPCs.Contains(npcID);
-    }
-
-    public void ChangeLoyalty(string npcID, float amount)
-    {
-        if (!CanAffectLoyalty(npcID))
-        {
-            Debug.LogWarning(
-                "NPC não autorizado a modificar a lealdade: " + npcID
-            );
-            return;
-        }
-
-        if (!IsValidAmount(amount))
-        {
-            Debug.LogWarning(
-                "Valor inválido! Utilize apenas -2, -1, 0, +1 ou +2."
-            );
-            return;
-        }
-
-        float previousScore = currentLoyalty;
-
-        currentLoyalty = Mathf.Clamp(
-            currentLoyalty + amount,
+        loyalty = Mathf.Clamp(
+            loyalty + amount,
             MIN_LOYALTY,
             MAX_LOYALTY
         );
 
-        Debug.Log(
-            "Lealdade modificada pelo NPC " + npcID +
-            ": " + previousScore + " -> " + currentLoyalty
-        );
+        if (previousValue != loyalty)
+            OnLoyaltyChanged?.Invoke(loyalty);
 
-        OnLoyaltyChanged?.Invoke(currentLoyalty);
+        Debug.Log("Lealdade atual: " + loyalty); //por agora pra identificar a mudança de lealdade
     }
 
-    private bool IsValidAmount(float amount)
+    public void SetLoyalty(int value)
     {
-        return Mathf.Approximately(amount, -2.0f) ||
-               Mathf.Approximately(amount, -1.0f) ||
-               Mathf.Approximately(amount, 0.0f) ||
-               Mathf.Approximately(amount, 1.0f) ||
-               Mathf.Approximately(amount, 2.0f);
+        int previousValue = loyalty;
+
+        loyalty = Mathf.Clamp(
+            value,
+            MIN_LOYALTY,
+            MAX_LOYALTY
+        );
+
+        if (previousValue != loyalty)
+            OnLoyaltyChanged?.Invoke(loyalty);
+    }
+
+    public void ResetLoyalty()
+    {
+        SetLoyalty(0);
+    }
+
+    public void SaveCampaign(string campaignID)
+    {
+        if (string.IsNullOrWhiteSpace(campaignID))
+            return;
+
+        PlayerPrefs.SetInt(
+            "Loyalty_" + campaignID,
+            loyalty
+        );
+
+        PlayerPrefs.Save();
+    }
+
+    public void LoadCampaign(string campaignID)
+    {
+        if (string.IsNullOrWhiteSpace(campaignID))
+            return;
+
+        int savedValue = PlayerPrefs.GetInt(
+            "Loyalty_" + campaignID,
+            0
+        );
+
+        SetLoyalty(savedValue);
+    }
+
+    public void DeleteCampaignSave(string campaignID)
+    {
+        if (string.IsNullOrWhiteSpace(campaignID))
+            return;
+
+        PlayerPrefs.DeleteKey("Loyalty_" + campaignID);
     }
 }

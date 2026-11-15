@@ -13,7 +13,7 @@ public class TestCampaignInitializer : MonoBehaviour
             return;
         }
 
-        if (LoyaltyManagerTeste.Instance == null)
+        if (LoyaltyManager.Instance == null)
         {
             Debug.LogError("LoyaltyManager não encontrado!");
             return;
@@ -24,7 +24,5 @@ public class TestCampaignInitializer : MonoBehaviour
             testCampaignID
         );
 
-//        Debug.Log("Campanha de teste iniciada!");
-      //  Debug.Log("Lealdade inicial: " + LoyaltyManagerTeste.Instance.CurrentLoyalty);
     }
 }

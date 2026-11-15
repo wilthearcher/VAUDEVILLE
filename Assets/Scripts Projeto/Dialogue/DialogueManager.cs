@@ -1,5 +1,5 @@
-
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -7,384 +7,384 @@ using Ink.Runtime;
 using Ink.UnityIntegration;
 
 public class DialogueManager : MonoBehaviour
-{
+{ 
     [Header("Interface")]
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private TMP_Text npcNameText;
     [SerializeField] private TMP_Text dialogueText;
     [SerializeField] private Transform choicesContainer;
-    [SerializeField] private Button choiceButtonPrefab;
+    [SerializeField] private GameObject choiceButtonPrefab;
+    [SerializeField] private Button continueButton;
     [SerializeField] private Button closeButton;
-
-    private Story story;
-    private string currentNPCID;
 
     public bool IsDialogueOpen { get; private set; }
 
     public event Action<bool> OnDialogueStateChanged;
 
-    private void Start()
+    private Story story;
+
+    private string currentNPCID;
+    private string currentNPCName;
+
+    private bool currentNPCCanModifyLoyalty;
+    private bool interactionStarted;
+    //private bool waitingToFinish;
+
+    private readonly List<GameObject> spawnedChoices =
+        new List<GameObject>();
+
+    private void Awake()
     {
-        if (
-            dialoguePanel == null ||
-            npcNameText == null ||
-            dialogueText == null ||
-            choicesContainer == null ||
-            choiceButtonPrefab == null ||
-            closeButton == null
-        )
-        {
-            Debug.LogError(
-                "DialogueManager possui referências faltando."
-            );
-
-            enabled = false;
-            return;
-        }
-
         dialoguePanel.SetActive(false);
 
-        // Configura o botão de fechar.
-        closeButton.onClick.RemoveListener(CloseDialogue);
+        continueButton.onClick.AddListener(ContinueDialogue);
         closeButton.onClick.AddListener(CloseDialogue);
-
-        closeButton.interactable = true;
-
-        // Garante que a imagem do botão receba o Raycast.
-        Image closeImage = closeButton.GetComponent<Image>();
-
-        if (closeImage != null)
-        {
-            closeImage.raycastTarget = true;
-            closeButton.targetGraphic = closeImage;
-        }
-
-        closeButton.gameObject.SetActive(false);
-
-        Debug.Log("DialogueManager inicializado.");
     }
 
-    public void StartDialogue(
-        InkFile inkFile,
-        string npcID,
-        string npcName
-    )
+    public void StartDialogue(InkFile inkFile, string npcID, string npcName, bool canModifyLoyalty)
     {
-        if (inkFile == null)
-        {
-            Debug.LogError("Arquivo Ink não informado.");
-            return;
-        }
-
         if (IsDialogueOpen)
             return;
 
-        if (string.IsNullOrEmpty(inkFile.storyJson))
+        if (InteractionTracker.Instance == null)
         {
-            Debug.LogError(
-                "O JSON compilado do InkFile está vazio."
-            );
-
+            Debug.LogError("InteractionTracker não encontrado.");
             return;
         }
 
-        try
+        if (InteractionTracker.Instance.HasInteracted(npcID))
         {
-            story = new Story(inkFile.storyJson);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError(
-                "Erro ao criar Story: " + ex.Message
-            );
-
+            ShowAlreadyInteractedMessage(npcName);
             return;
         }
 
-        currentNPCID = npcID != null ? npcID.Trim() : "";
-
-        npcNameText.text = npcName;
-
-        try
-        {
-            story.ChoosePathString("start");
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError(
-                "Não foi possível encontrar o caminho start no INK: " +
-                ex.Message
-            );
-
-            story = null;
+        if (!InteractionTracker.Instance.TryStartInteraction(npcID))
             return;
-        }
+
+        interactionStarted = true;
+
+        currentNPCID = npcID;
+        currentNPCName = npcName;
+        currentNPCCanModifyLoyalty = canModifyLoyalty;
+
+        Debug.Log("ARQUIVO INK: " + inkFile.name);
+
+        Debug.Log("HISTÓRIA CONTÉM loyalty_delta: " + inkFile.storyJson.Contains("loyalty_delta"));
+
+        story = new Story(inkFile.storyJson);
+
+        Debug.Log("História INK carregada.");
+
+        story.ChoosePathString("start");
 
         dialoguePanel.SetActive(true);
 
         IsDialogueOpen = true;
-
         OnDialogueStateChanged?.Invoke(true);
 
-        SetCloseButtonVisible(false);
+        npcNameText.text = currentNPCName;
 
-        Debug.Log(
-            "Diálogo iniciado com NPC: " + currentNPCID
-        );
+        //waitingToFinish = false;
 
         ContinueDialogue();
     }
 
     private void ContinueDialogue()
     {
-        if (story == null)
+        if (story == null || !IsDialogueOpen)
             return;
 
         ClearChoices();
 
-        string dialogueContent = "";
-
-        // Continua avançando até encontrar escolhas
-        // ou até chegar ao final da história.
-        while (
-            story.canContinue &&
-            story.currentChoices.Count == 0
-        )
+        if (story.canContinue)
         {
-            string nextText = story.Continue().Trim();
-
-            if (!string.IsNullOrEmpty(nextText))
-            {
-                if (!string.IsNullOrEmpty(dialogueContent))
-                    dialogueContent += "\n";
-
-                dialogueContent += nextText;
-            }
+            dialogueText.text = story.Continue().Trim();
+            continueButton.gameObject.SetActive(true);
+            return;
         }
-
-        dialogueText.text = dialogueContent;
 
         if (story.currentChoices.Count > 0)
         {
-            SetCloseButtonVisible(false);
             ShowChoices();
+            return;
         }
-        else
-        {
-            SetCloseButtonVisible(true);
 
-            Debug.Log(
-                "Diálogo chegou ao fim. Botão de fechar ativado."
-            );
-        }
+        // Não existem mais falas nem escolhas.
+        FinishInteraction();
+    }
+
+    private void UpdateContinueButton()
+    {
+        bool hasChoices = story.currentChoices.Count > 0;
+        continueButton.gameObject.SetActive(!hasChoices);
     }
 
     private void ShowChoices()
     {
-        float currentLoyalty = 0f;
+        dialogueText.gameObject.SetActive(false);
 
-        if (LoyaltyManager.Instance != null)
+        ClearChoices();
+
+        continueButton.gameObject.SetActive(false);
+
+        int currentLoyalty =
+            LoyaltyManager.Instance != null
+            ? LoyaltyManager.Instance.CurrentLoyalty
+            : 0;
+
+        for (int i = 0; i < story.currentChoices.Count; i++)
         {
-            currentLoyalty =
-                LoyaltyManager.Instance.CurrentLoyalty;
-        }
+            Choice choice = story.currentChoices[i];
 
-        Debug.Log(
-            "Quantidade de escolhas: " +
-            story.currentChoices.Count
-        );
+            // Teste no console para verificar se as tags estão sendo recebidas e lidas corretamente
+            /* Debug.Log("========== TESTE DAS TAGS ==========");
+            Debug.Log("Alternativa: " + choice.text);
 
-        foreach (Choice inkChoice in story.currentChoices)
-        {
-            DialogueChoice choice =
-                new DialogueChoice(inkChoice);
+            Debug.Log("Quantidade de tags: " + (choice.tags == null ? -1 : choice.tags.Count));
 
-            Debug.Log(
-                "Escolha: " + choice.Text +
-                " | Delta: " + choice.LoyaltyDelta +
-                " | Possui delta: " + choice.HasLoyaltyDelta
+            if (choice.tags != null)
+            {
+                foreach (string tag in choice.tags)
+                {
+                    Debug.Log("TAG RECEBIDA: [" + tag + "]");
+                }
+            }
+
+            Debug.Log("===================================="); */
+
+            int minLoyalty = GetTagValue(
+                choice,
+                "min_loyalty",
+                -15
             );
 
-            Button button = Instantiate(
+            int maxLoyalty = GetTagValue(
+                choice,
+                "max_loyalty",
+                15
+            );
+
+            int delta = GetTagValue(
+                choice,
+                "loyalty_delta",
+                0
+            );
+
+            bool unlocked =
+                currentLoyalty >= minLoyalty &&
+                currentLoyalty <= maxLoyalty;
+
+            if (!currentNPCCanModifyLoyalty)
+                delta = 0;
+
+            GameObject buttonObject = Instantiate(
                 choiceButtonPrefab,
                 choicesContainer
             );
 
-            TMP_Text buttonText =
-                button.GetComponentInChildren<TMP_Text>();
+            DialogueChoice dialogueChoice =
+                buttonObject.GetComponent<DialogueChoice>();
 
-            if (buttonText == null)
+            if (dialogueChoice == null)
             {
                 Debug.LogError(
-                    "O prefab do botão não possui TMP_Text."
+                    "O prefab precisa ter o componente DialogueChoice."
                 );
 
-                Destroy(button.gameObject);
+                Destroy(buttonObject);
                 continue;
             }
 
-            bool unlocked =
-                choice.IsUnlocked(currentLoyalty);
+            int choiceIndex = i;
 
-            buttonText.text = choice.Text;
-
-            if (!unlocked)
-            {
-                buttonText.text +=
-                    "\n(Requer lealdade: " +
-                    choice.RequiredLoyalty + ")";
-            }
-
-            button.interactable = unlocked;
-
-            DialogueChoice selectedChoice = choice;
-
-            button.onClick.RemoveAllListeners();
-
-            button.onClick.AddListener(() =>
-            {
-                Debug.Log(
-                    "Escolha clicada: " + selectedChoice.Text
-                );
-
-                ChooseChoice(selectedChoice);
-            });
-
-            Debug.Log(
-                "Botão criado: " + choice.Text +
-                " | Interactable: " + button.interactable +
-                " | Lealdade: " + currentLoyalty
+            dialogueChoice.Setup(
+                choice.text,
+                minLoyalty,
+                maxLoyalty,
+                delta,
+                unlocked,
+                () => ChooseChoice(choiceIndex, delta)
             );
+
+            spawnedChoices.Add(buttonObject);
         }
     }
 
-    private void ChooseChoice(DialogueChoice choice)
+    private void ChooseChoice(int choiceIndex, int delta)
     {
-        if (story == null || choice == null)
+        if (story == null)
             return;
 
-        float currentLoyalty = 0f;
+        // Reexibe o texto após selecionar uma alternativa.
+        dialogueText.gameObject.SetActive(true);
 
-        if (LoyaltyManager.Instance != null)
-        {
-            currentLoyalty =
-                LoyaltyManager.Instance.CurrentLoyalty;
-        }
-
-        if (!choice.IsUnlocked(currentLoyalty))
-        {
-            Debug.LogWarning(
-                "Escolha bloqueada pelo requisito de lealdade."
-            );
-
+        if (choiceIndex < 0 ||
+            choiceIndex >= story.currentChoices.Count)
             return;
-        }
-
-        // Aplica a alteração de lealdade.
-        if (LoyaltyManager.Instance == null)
-        {
-            Debug.LogError(
-                "LoyaltyManager não encontrado na cena."
-            );
-        }
-        else
-        {
-            Debug.Log(
-                "NPC ID recebido: " + currentNPCID
-            );
-
-            Debug.Log(
-                "Delta recebido: " + choice.LoyaltyDelta
-            );
-
-            Debug.Log(
-                "Lealdade antes: " +
-                LoyaltyManager.Instance.CurrentLoyalty
-            );
-
-            if (!LoyaltyManager.Instance.CanAffectLoyalty(currentNPCID))
-            {
-                Debug.LogWarning(
-                    "Este NPC não está autorizado a modificar a lealdade: " +
-                    currentNPCID
-                );
-            }
-            else if (!choice.HasLoyaltyDelta)
-            {
-                Debug.LogWarning(
-                    "Esta escolha não possui uma tag delta no INK."
-                );
-            }
-            else
-            {
-                LoyaltyManager.Instance.ChangeLoyalty(
-                    currentNPCID,
-                    choice.LoyaltyDelta
-                );
-
-                Debug.Log(
-                    "Lealdade depois: " +
-                    LoyaltyManager.Instance.CurrentLoyalty
-                );
-            }
-        }
-
-        // Avança a história INK.
-        story.ChooseChoiceIndex(
-            choice.InkChoice.index
-        );
 
         ClearChoices();
+
+        if (currentNPCCanModifyLoyalty && LoyaltyManager.Instance != null)
+        {
+            Debug.Log("Lealdade antes: " + LoyaltyManager.Instance.CurrentLoyalty);
+
+            LoyaltyManager.Instance.ChangeLoyalty(delta);
+
+            Debug.Log("Lealdade depois: " + LoyaltyManager.Instance.CurrentLoyalty);
+        }
+
+        // A escolha já foi feita: a interação não poderá ser repetida.
+        if (interactionStarted)
+        {
+            InteractionTracker.Instance.CompleteInteraction(
+                currentNPCID
+            );
+
+            interactionStarted = false;
+        }
+
+        story.ChooseChoiceIndex(choiceIndex);
 
         ContinueDialogue();
     }
 
-    private void SetCloseButtonVisible(bool visible)
+    private int GetTagValue(
+        Choice choice,
+        string tagName,
+        int defaultValue
+    )
     {
-        closeButton.gameObject.SetActive(visible);
-
-        if (visible)
+        // Verifica se a escolha existe.
+        if (choice == null)
         {
-            closeButton.interactable = true;
+            Debug.LogWarning(
+                "GetTagValue recebeu uma escolha nula."
+            );
 
-            // Coloca o botão na frente dos outros elementos
-            // que estejam no mesmo objeto pai.
-            closeButton.transform.SetAsLastSibling();
+            return defaultValue;
         }
+
+        // Verifica se a escolha possui tags.
+        if (choice.tags == null || choice.tags.Count == 0)
+        {
+            Debug.Log(
+                "A escolha '" + choice.text +
+                "' não possui tags. Valor padrão: " + defaultValue
+            );
+
+            return defaultValue;
+        }
+
+        foreach (string tag in choice.tags)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                continue;
+
+            string[] parts = tag.Split(
+                new char[] { ':' },
+                2
+            );
+
+            if (parts.Length != 2)
+                continue;
+
+            if (parts[0].Trim() == tagName)
+            {
+                if (int.TryParse(
+                    parts[1].Trim(),
+                    out int result
+                ))
+                {
+                    Debug.Log(
+                        "Tag encontrada: " + tagName +
+                        " = " + result
+                    );
+
+                    return result;
+                }
+            }
+        }
+
+        return defaultValue;
     }
 
-    private void ClearChoices()
+    private void FinishInteraction()
     {
-        foreach (Transform child in choicesContainer)
+        if (interactionStarted)
         {
-            Destroy(child.gameObject);
+            InteractionTracker.Instance.CompleteInteraction(
+                currentNPCID
+            );
+
+            interactionStarted = false;
         }
+
+        ResetDialogueState();
+    }
+
+    private void ShowAlreadyInteractedMessage(string npcName)
+    {
+        dialoguePanel.SetActive(true);
+
+        IsDialogueOpen = true;
+        OnDialogueStateChanged?.Invoke(true);
+
+        npcNameText.text = npcName;
+        dialogueText.text = "Você já conversou comigo.";
+
+        continueButton.gameObject.SetActive(false);
+        ClearChoices();
     }
 
     public void CloseDialogue()
     {
-        Debug.Log("Clique recebido no botão de fechar.");
-
         if (!IsDialogueOpen)
             return;
 
+        if (interactionStarted)
+        {
+            InteractionTracker.Instance.CancelInteraction(
+                currentNPCID
+            );
+
+            interactionStarted = false;
+        }
+
+        ResetDialogueState();
+    }
+
+    private void ResetDialogueState()
+    {
+        story = null;
+
+        currentNPCID = null;
+        currentNPCName = null;
+
+        currentNPCCanModifyLoyalty = false;
+        //waitingToFinish = false;
+
         ClearChoices();
-
-        dialogueText.text = "";
-        npcNameText.text = "";
-
-        SetCloseButtonVisible(false);
 
         dialoguePanel.SetActive(false);
 
-        story = null;
-
-        currentNPCID = "";
-
         IsDialogueOpen = false;
-
         OnDialogueStateChanged?.Invoke(false);
+    }
 
-        Debug.Log("Diálogo encerrado.");
+    private void ClearChoices()
+    {
+        foreach (GameObject choice in spawnedChoices)
+        {
+            if (choice != null)
+                Destroy(choice);
+        }
+
+        spawnedChoices.Clear();
+    }
+
+    private void OnDestroy()
+    {
+        continueButton.onClick.RemoveListener(ContinueDialogue);
+        closeButton.onClick.RemoveListener(CloseDialogue);
     }
 }

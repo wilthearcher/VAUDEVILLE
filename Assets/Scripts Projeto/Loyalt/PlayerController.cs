@@ -1,8 +1,7 @@
-
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class PlayerControllerTeste : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     [Header("Movimentação")]
     [SerializeField] private float moveSpeed = 5f;
@@ -17,7 +16,7 @@ public class PlayerControllerTeste : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     [Header("Diálogo")]
-    [SerializeField] private DialogueManagerTeste dialogueManager;
+    [SerializeField] private DialogueManager dialogueManager;
 
     private float minX;
     private float maxX;
@@ -28,7 +27,6 @@ public class PlayerControllerTeste : MonoBehaviour
     private float cameraDistance;
 
     private bool isDialogueActive;
-
     private void Awake()
     {
         playerTransform = transform;
@@ -163,15 +161,12 @@ public class PlayerControllerTeste : MonoBehaviour
         // Verifica se algum dos objetos encontrados é um NPC.
         foreach (Collider2D hit in hits)
         {
-            NPCInteractionTeste npc =
-                hit.GetComponentInParent<NPCInteractionTeste>();
+            NPCInteraction npc =
+                hit.GetComponentInParent<NPCInteraction>();
 
             if (npc != null)
             {
-//                Debug.Log("NPC encontrado: " + npc.NPCName);
-
                 npc.Interact(dialogueManager);
-
                 return;
             }
         }
@@ -192,7 +187,6 @@ public class PlayerControllerTeste : MonoBehaviour
         {
             // Interrompe qualquer movimento em andamento.
             targetX = playerTransform.position.x;
-
             animator.SetBool("isWalking", false);
         }
     }
