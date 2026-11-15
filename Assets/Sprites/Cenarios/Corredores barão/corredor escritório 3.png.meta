@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 835ce19fed65c2a4d959293f744e1395
+guid: 2f8c90f5a229b3d478d840819d012efb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3289482325055021569
-    second: Ativo 33_0
+      213: 1804468401756101575
+    second: "corredor escrit\xF3rio 3_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ativo 33_0
+      name: "corredor escrit\xF3rio 3_0"
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 34
-        height: 35
+        width: 1920
+        height: 1080
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 102a4d70fb696ad20800000000000000
-      internalID: 3289482325055021569
+      spriteID: 7cbd61f6372ca0910800000000000000
+      internalID: 1804468401756101575
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Ativo 33_0: 3289482325055021569
+      "corredor escrit\xF3rio 3_0": 1804468401756101575
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

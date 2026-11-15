@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 3c47c0de2f364c24fab8d568e294f6be
+guid: bf2cc0864f02c7b45bd7e41b2c0f1030
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4757325058974352583
-    second: corredores Vaudeville 1corredor porta sozinha.jpg_0
+      213: 1773243189196459550
+    second: "Corredores escrit\xF3rio 1_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,7 +115,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: corredores Vaudeville 1corredor porta sozinha.jpg_0
+      name: "Corredores escrit\xF3rio 1_0"
       rect:
         serializedVersion: 2
         x: 0
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7c40b3d8fe9650240800000000000000
-      internalID: 4757325058974352583
+      spriteID: e1e8f681943db9810800000000000000
+      internalID: 1773243189196459550
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      corredores Vaudeville 1corredor porta sozinha.jpg_0: 4757325058974352583
+      "Corredores escrit\xF3rio 1_0": 1773243189196459550
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e771b84a621a2c94388fc8868c7d01d3
+guid: 842cd68187e429f4a87738b9a403582c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7414530636987573992
-    second: Ativo 28_0
+      213: -3077146302191883477
+    second: "Sala do Bar\xE3o _0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ativo 28_0
+      name: "Sala do Bar\xE3o _0"
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 86
-        height: 86
+        width: 3840
+        height: 1080
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8e625e99454b5e660800000000000000
-      internalID: 7414530636987573992
+      spriteID: b2b22f7ddb7cb45d0800000000000000
+      internalID: -3077146302191883477
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Ativo 28_0: 7414530636987573992
+      "Sala do Bar\xE3o _0": -3077146302191883477
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

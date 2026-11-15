@@ -2,7 +2,7 @@
 
 Muito boa tarde, senhor Delair. Poderia me apresentar o cartão de visita, por gentileza?
 
-* [Hã? Quem é você? Como sabe meu nome? # min_loyalty: 0 # max_loyalty: 15 # loyalty_delta: 0]
+* [Hã? Quem é você? Como sabe meu nome? # min_loyalty: 0 # max_loyalty: 15 # loyalty_delta: 2]
     Perdoe-me, mas fui instruído a respondê-lo apenas se o senhor estivesse em posse do cartão de seu avô. É o caso?
     -> perguntar_cartao
 

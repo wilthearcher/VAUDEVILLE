@@ -1,8 +1,7 @@
-
 using UnityEngine;
 using Ink.UnityIntegration;
 
-public class NPCInteractionTeste : MonoBehaviour
+public class NPCInteraction : MonoBehaviour
 {
     [Header("Informações do NPC")]
     [SerializeField] private string npcID;
@@ -16,7 +15,7 @@ public class NPCInteractionTeste : MonoBehaviour
     public string NPCName => npcName;
     public bool CanModifyLoyalty => canModifyLoyalty;
 
-    public bool Interact(DialogueManagerTeste dialogueManager)
+    public bool Interact(DialogueManager dialogueManager)
     {
         if (dialogueManager == null)
         {
