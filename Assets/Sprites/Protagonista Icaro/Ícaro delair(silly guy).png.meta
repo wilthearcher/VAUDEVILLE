@@ -1,0 +1,366 @@
+fileFormatVersion: 2
+guid: f9d0682a20542884587973603010f0a4
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1766124090805359399
+    second: "\xCDcaro delair(silly guy)_0"
+  - first:
+      213: -5700532735701192031
+    second: "\xCDcaro delair(silly guy)_1"
+  - first:
+      213: 8583143954952042152
+    second: "\xCDcaro delair(silly guy)_2"
+  - first:
+      213: -52596795194578766
+    second: "\xCDcaro delair(silly guy)_3"
+  - first:
+      213: -7513256036259785618
+    second: "\xCDcaro delair(silly guy)_4"
+  - first:
+      213: -5584891364645019386
+    second: "\xCDcaro delair(silly guy)_5"
+  - first:
+      213: -3082704806674687014
+    second: "\xCDcaro delair(silly guy)_6"
+  - first:
+      213: 1823952978186641758
+    second: "\xCDcaro delair(silly guy)_7"
+  - first:
+      213: -8762146775976013577
+    second: "\xCDcaro delair(silly guy)_8"
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: "\xCDcaro delair(silly guy)_0"
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 3889
+        width: 550
+        height: 1848
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72396b5d088828810800000000000000
+      internalID: 1766124090805359399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\xCDcaro delair(silly guy)_1"
+      rect:
+        serializedVersion: 2
+        x: 1231
+        y: 3901
+        width: 495
+        height: 1851
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a27b0afda3a3e0b0800000000000000
+      internalID: -5700532735701192031
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\xCDcaro delair(silly guy)_2"
+      rect:
+        serializedVersion: 2
+        x: 2171
+        y: 3934
+        width: 609
+        height: 1830
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a635fa93f37d1770800000000000000
+      internalID: 8583143954952042152
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\xCDcaro delair(silly guy)_3"
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 2024
+        width: 972
+        height: 1800
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b86a125e73254ff0800000000000000
+      internalID: -52596795194578766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\xCDcaro delair(silly guy)_4"
+      rect:
+        serializedVersion: 2
+        x: 1093
+        y: 1984
+        width: 792
+        height: 1837
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e641d24217d8bb790800000000000000
+      internalID: -7513256036259785618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\xCDcaro delair(silly guy)_5"
+      rect:
+        serializedVersion: 2
+        x: 2129
+        y: 2005
+        width: 702
+        height: 1824
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 601ef25d4ea7e72b0800000000000000
+      internalID: -5584891364645019386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\xCDcaro delair(silly guy)_6"
+      rect:
+        serializedVersion: 2
+        x: 167
+        y: 78
+        width: 655
+        height: 1831
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adb14caaf480835d0800000000000000
+      internalID: -3082704806674687014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\xCDcaro delair(silly guy)_7"
+      rect:
+        serializedVersion: 2
+        x: 1139
+        y: 98
+        width: 699
+        height: 1803
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e51a4d7e19bff4910800000000000000
+      internalID: 1823952978186641758
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\xCDcaro delair(silly guy)_8"
+      rect:
+        serializedVersion: 2
+        x: 2168
+        y: 77
+        width: 629
+        height: 1822
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f09d1c5ee9966680800000000000000
+      internalID: -8762146775976013577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      "\xCDcaro delair(silly guy)_0": 1766124090805359399
+      "\xCDcaro delair(silly guy)_1": -5700532735701192031
+      "\xCDcaro delair(silly guy)_2": 8583143954952042152
+      "\xCDcaro delair(silly guy)_3": -52596795194578766
+      "\xCDcaro delair(silly guy)_4": -7513256036259785618
+      "\xCDcaro delair(silly guy)_5": -5584891364645019386
+      "\xCDcaro delair(silly guy)_6": -3082704806674687014
+      "\xCDcaro delair(silly guy)_7": 1823952978186641758
+      "\xCDcaro delair(silly guy)_8": -8762146775976013577
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

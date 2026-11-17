@@ -1,3 +1,4 @@
+using System; // alteração para movimentação cojunta com NPCFollower 
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -27,6 +28,13 @@ public class PlayerController : MonoBehaviour
     private float cameraDistance;
 
     private bool isDialogueActive;
+
+    // Alterações para movimentação conjunta com NPCFollower
+    private bool isMovingToSequencePosition;
+    private bool isMovementLocked;
+
+    public event Action OnSequencePositionReached;
+    // ================================================
     private void Awake()
     {
         playerTransform = transform;
@@ -112,10 +120,65 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Update()
+    /*private void Update() alteração para movimentação conjunta com NPCFollower
     {
         // Bloqueia a movimentação durante o diálogo.
         if (isDialogueActive)
+        {
+            animator.SetBool("isWalking", false);
+            return;
+        }
+
+        DetectMouseClick();
+
+        MovePlayer();
+
+        UpdateAnimation();
+    }*/
+
+    private void Update()
+    {
+        if (isDialogueActive)
+        {
+            animator.SetBool("isWalking", false);
+            return;
+        }
+
+        // Movimentação automática durante a sequência.
+        if (isMovingToSequencePosition)
+        {
+            MovePlayer();
+            UpdateAnimation();
+
+            /*if (Mathf.Approximately(
+                playerTransform.position.x,
+                targetX))
+            {
+                isMovingToSequencePosition = false;
+                isMovementLocked = true;
+
+                animator.SetBool("isWalking", false);
+
+                OnSequencePositionReached?.Invoke();
+            }*/
+
+            if (Mathf.Approximately(
+                playerTransform.position.x,
+                targetX))
+            {
+                isMovingToSequencePosition = false;
+                isMovementLocked = false;
+
+                animator.SetBool("isWalking", false);
+
+                OnSequencePositionReached?.Invoke();
+            }
+
+            return;
+        }
+
+        // Impede novos comandos de movimentação.
+        if (isMovementLocked)
         {
             animator.SetBool("isWalking", false);
             return;
@@ -230,4 +293,27 @@ public class PlayerController : MonoBehaviour
             spriteRenderer.flipX = false;
         }
     }
+
+    public void StopAndMoveTo(Vector3 destination)
+    {
+        isMovementLocked = false;
+        isMovingToSequencePosition = true;
+
+        targetX = Mathf.Clamp(
+            destination.x,
+            minX,
+            maxX
+        );
+    }
+
+    public void UnlockMovement()
+    {
+        isMovingToSequencePosition = false;
+        isMovementLocked = false;
+
+        targetX = playerTransform.position.x;
+
+        animator.SetBool("isWalking", false);
+    }
+
 }
