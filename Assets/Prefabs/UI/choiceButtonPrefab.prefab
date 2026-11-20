@@ -38,8 +38,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 160, y: 30}
+  m_AnchoredPosition: {x: 0, y: 0.375}
+  m_SizeDelta: {x: 480, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3915894828134226193
 CanvasRenderer:
@@ -137,6 +137,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueChoiceTeste
   button: {fileID: 2883045632006067450}
   choiceText: {fileID: 3392056941216669502}
+  layoutElement: {fileID: 0}
+  minimumButtonHeight: 60
+  verticalPadding: 24
+  horizontalPadding: 30
 --- !u!114 &-5933125269896219344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,12 +157,12 @@ MonoBehaviour:
   m_MinWidth: -1
   m_MinHeight: -1
   m_PreferredWidth: -1
-  m_PreferredHeight: 55
+  m_PreferredHeight: 70
   m_FlexibleWidth: -1
   m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
-  m_MaxHeight: 45
+  m_MaxHeight: 40
 --- !u!1 &7153761743340724505
 GameObject:
   m_ObjectHideFlags: 0
@@ -233,8 +237,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279070893
-  m_fontColor: {r: 0.6784314, g: 0.4392157, b: 0.050980393, a: 1}
+    rgba: 4279257704
+  m_fontColor: {r: 0.40784314, g: 0.2901961, b: 0.0627451, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -251,10 +255,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28.55
-  m_fontSizeBase: 26.5
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
