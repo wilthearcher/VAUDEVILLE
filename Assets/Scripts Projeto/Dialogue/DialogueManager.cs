@@ -7,7 +7,7 @@ using Ink.Runtime;
 using Ink.UnityIntegration;
 
 public class DialogueManager : MonoBehaviour
-{ 
+{
     [Header("Interface")]
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private TMP_Text npcNameText;
@@ -28,6 +28,19 @@ public class DialogueManager : MonoBehaviour
 
     private bool currentNPCCanModifyLoyalty;
     private bool interactionStarted;
+
+    private bool demoEndPending = false;
+
+    private bool completeInteractionOnFinish = true;
+
+    [Header("Configuração do texto")]
+    [SerializeField] private int maxLinesPerPage = 4;
+
+    private List<string> dialoguePages = new List<string>();
+    private int currentPageIndex = 0;
+    
+
+    public event System.Action<string> OnDialogueFinished;
     //private bool waitingToFinish;
 
     private readonly List<GameObject> spawnedChoices =
@@ -41,7 +54,7 @@ public class DialogueManager : MonoBehaviour
         closeButton.onClick.AddListener(CloseDialogue);
     }
 
-    public void StartDialogue(InkFile inkFile, string npcID, string npcName, bool canModifyLoyalty)
+    public void StartDialogue(InkFile inkFile, string npcID, string npcName, bool canModifyLoyalty, bool completeInteraction = true)
     {
         if (IsDialogueOpen)
             return;
@@ -62,10 +75,13 @@ public class DialogueManager : MonoBehaviour
             return;
 
         interactionStarted = true;
+        demoEndPending = false;
 
         currentNPCID = npcID;
         currentNPCName = npcName;
         currentNPCCanModifyLoyalty = canModifyLoyalty;
+
+        completeInteractionOnFinish = completeInteraction;
 
         Debug.Log("ARQUIVO INK: " + inkFile.name);
 
@@ -94,14 +110,34 @@ public class DialogueManager : MonoBehaviour
         if (story == null || !IsDialogueOpen)
             return;
 
+        // Primeiro verifica se ainda existem páginas
+        // da fala atual para apresentar.
+        if (currentPageIndex < dialoguePages.Count - 1)
+        {
+            currentPageIndex++;
+
+            dialogueText.text = dialoguePages[currentPageIndex];
+
+            return;
+        }
+
+        // A fala terminou. Podemos avançar o Ink.
+        dialoguePages.Clear();
+        currentPageIndex = 0;
+
         ClearChoices();
 
         if (story.canContinue)
         {
-            dialogueText.text = story.Continue().Trim();
+            string nextText = story.Continue().Trim();
+
+            PrepareDialoguePages(nextText);
+
             continueButton.gameObject.SetActive(true);
+
             return;
         }
+
 
         if (story.currentChoices.Count > 0)
         {
@@ -109,8 +145,89 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        // Não existem mais falas nem escolhas.
+        // O Ink terminou completamente.
+        bool shouldEndDemo = demoEndPending;
+
         FinishInteraction();
+
+        if (shouldEndDemo)
+        {
+            if (DemoEndController.Instance != null)
+            {
+                DemoEndController.Instance.EndDemo();
+            }
+            else
+            {
+                Debug.LogError("DemoEndController não encontrado.");
+            }
+        }
+    }
+
+    private void PrepareDialoguePages(string fullText)
+    {
+        dialoguePages.Clear();
+        currentPageIndex = 0;
+
+        dialogueText.text = fullText;
+
+        // Calcula as linhas considerando o tamanho real
+        // do balão e as configurações do TextMeshPro.
+        dialogueText.ForceMeshUpdate();
+
+        TMP_TextInfo textInfo = dialogueText.textInfo;
+
+        int totalLines = textInfo.lineCount;
+
+        if (totalLines == 0)
+        {
+            dialoguePages.Add(fullText);
+            dialogueText.text = fullText;
+            return;
+        }
+
+        for (int startLine = 0; startLine < totalLines;
+             startLine += maxLinesPerPage)
+        {
+            int endLine = Mathf.Min(
+                startLine + maxLinesPerPage,
+                totalLines
+            );
+
+            int startIndex = textInfo.characterInfo[
+                textInfo.lineInfo[startLine].firstCharacterIndex
+            ].index;
+
+            int endIndex;
+
+            if (endLine < totalLines)
+            {
+                int nextLineFirstCharacter =
+                    textInfo.lineInfo[endLine].firstCharacterIndex;
+
+                endIndex = textInfo.characterInfo[
+                    nextLineFirstCharacter
+                ].index;
+            }
+            else
+            {
+                endIndex = fullText.Length;
+            }
+
+            int length = Mathf.Max(0, endIndex - startIndex);
+
+            string page = fullText.Substring(startIndex, length);
+
+            dialoguePages.Add(page);
+        }
+
+        // Exibe a primeira página.
+        dialogueText.text = dialoguePages[0];
+    }
+
+    private void ClearDialoguePages()
+    {
+        dialoguePages.Clear();
+        currentPageIndex = 0;
     }
 
     private void UpdateContinueButton()
@@ -136,21 +253,6 @@ public class DialogueManager : MonoBehaviour
         {
             Choice choice = story.currentChoices[i];
 
-            // Teste no console para verificar se as tags estão sendo recebidas e lidas corretamente
-            /* Debug.Log("========== TESTE DAS TAGS ==========");
-            Debug.Log("Alternativa: " + choice.text);
-
-            Debug.Log("Quantidade de tags: " + (choice.tags == null ? -1 : choice.tags.Count));
-
-            if (choice.tags != null)
-            {
-                foreach (string tag in choice.tags)
-                {
-                    Debug.Log("TAG RECEBIDA: [" + tag + "]");
-                }
-            }
-
-            Debug.Log("===================================="); */
 
             int minLoyalty = GetTagValue(
                 choice,
@@ -236,16 +338,41 @@ public class DialogueManager : MonoBehaviour
         // A escolha já foi feita: a interação não poderá ser repetida.
         if (interactionStarted)
         {
-            InteractionTracker.Instance.CompleteInteraction(
-                currentNPCID
-            );
+            /*InteractionTracker.Instance.CompleteInteraction(
+                 currentNPCID
+             );
 
-            interactionStarted = false;
+             interactionStarted = false;*/
+        }
+
+        //TESTE PRA PORRA DA DEMO
+        bool endsDemo = false;
+        // Verifica se a alternativa selecionada encerra a demo.
+
+        if (story.currentChoices[choiceIndex].tags != null)
+        {
+            foreach (string tag in story.currentChoices[choiceIndex].tags)
+            {
+                if (tag.Trim() == "end_demo")
+                {
+                    endsDemo = true;
+                    break;
+                }
+            }
+        }
+
+        // Guarda a informação para encerrar a demo
+        // somente depois que o Ink terminar a resposta.
+        if (endsDemo)
+        {
+            demoEndPending = true;
         }
 
         story.ChooseChoiceIndex(choiceIndex);
 
+        // Continua normalmente, exibindo a resposta do Barão.
         ContinueDialogue();
+
     }
 
     private int GetTagValue(
@@ -312,16 +439,29 @@ public class DialogueManager : MonoBehaviour
     {
         if (interactionStarted)
         {
-            InteractionTracker.Instance.CompleteInteraction(
-                currentNPCID
-            );
+            if (completeInteractionOnFinish)
+            {
+                InteractionTracker.Instance.CompleteInteraction(
+                    currentNPCID
+                );
+            }
+            else
+            {
+                // Libera o NPC para a próxima etapa.
+                InteractionTracker.Instance.CancelInteraction(
+                    currentNPCID
+                );
+            }
 
             interactionStarted = false;
         }
 
+        string finishedID = currentNPCID;
+
+        OnDialogueFinished?.Invoke(finishedID);
+
         ResetDialogueState();
     }
-
     private void ShowAlreadyInteractedMessage(string npcName)
     {
         dialoguePanel.SetActive(true);
@@ -341,6 +481,9 @@ public class DialogueManager : MonoBehaviour
         if (!IsDialogueOpen)
             return;
 
+        if (demoEndPending)
+            return;
+
         if (interactionStarted)
         {
             InteractionTracker.Instance.CancelInteraction(
@@ -355,19 +498,22 @@ public class DialogueManager : MonoBehaviour
 
     private void ResetDialogueState()
     {
+        demoEndPending = false; //alterar se precisar
         story = null;
+
+        ClearDialoguePages();
 
         currentNPCID = null;
         currentNPCName = null;
 
         currentNPCCanModifyLoyalty = false;
-        //waitingToFinish = false;
 
         ClearChoices();
 
         dialoguePanel.SetActive(false);
 
         IsDialogueOpen = false;
+
         OnDialogueStateChanged?.Invoke(false);
     }
 

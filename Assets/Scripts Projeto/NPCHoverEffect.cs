@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 public class NPCHoverEffect : MonoBehaviour
@@ -8,13 +9,70 @@ public class NPCHoverEffect : MonoBehaviour
 
     private void Awake()
     {
+        // Primeiro, procura o SpriteRenderer do próprio NPC.
         if (npcRenderer == null)
             npcRenderer = GetComponent<SpriteRenderer>();
 
-        if (npcRenderer == null || auraRenderer == null)
+        // Se não encontrou, procura nos filhos.
+        SpriteRenderer[] renderers =
+            GetComponentsInChildren<SpriteRenderer>(true);
+
+        if (npcRenderer == null)
+        {
+            foreach (SpriteRenderer renderer in renderers)
+            {
+                if (!renderer.name.ToLower().Contains("aura"))
+                {
+                    npcRenderer = renderer;
+                    break;
+                }
+            }
+        }
+
+        // Procura a aura pelo nome.
+        if (auraRenderer == null)
+        {
+            foreach (SpriteRenderer renderer in renderers)
+            {
+                if (renderer.transform != transform &&
+                    renderer.name.ToLower().Contains("aura"))
+                {
+                    auraRenderer = renderer;
+                    break;
+                }
+            }
+        }
+
+        // Se não encontrou pelo nome, procura outro
+        // SpriteRenderer nos objetos filhos.
+        if (auraRenderer == null && npcRenderer != null)
+        {
+            foreach (SpriteRenderer renderer in renderers)
+            {
+                if (renderer != npcRenderer &&
+                    renderer.transform != transform)
+                {
+                    auraRenderer = renderer;
+                    break;
+                }
+            }
+        }
+
+        if (npcRenderer == null)
         {
             Debug.LogError(
-                "Configure os SpriteRenderers do NPC e da Aura!",
+                "SpriteRenderer do NPC não encontrado em: " + gameObject.name,
+                this
+            );
+
+            enabled = false;
+            return;
+        }
+
+        if (auraRenderer == null)
+        {
+            Debug.LogError(
+                "SpriteRenderer da Aura não encontrado em: " + gameObject.name,
                 this
             );
 
@@ -27,22 +85,24 @@ public class NPCHoverEffect : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Acompanha os frames da animação do NPC.
-        auraRenderer.sprite = npcRenderer.sprite;
+        if (npcRenderer == null || auraRenderer == null)
+            return;
 
-        // Acompanha a direção do personagem.
+        auraRenderer.sprite = npcRenderer.sprite;
         auraRenderer.flipX = npcRenderer.flipX;
         auraRenderer.flipY = npcRenderer.flipY;
     }
 
     private void OnMouseEnter()
     {
-        auraRenderer.enabled = true;
+        if (auraRenderer != null)
+            auraRenderer.enabled = true;
     }
 
     private void OnMouseExit()
     {
-        auraRenderer.enabled = false;
+        if (auraRenderer != null)
+            auraRenderer.enabled = false;
     }
 
     private void OnDisable()

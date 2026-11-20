@@ -5,7 +5,7 @@ Shader "Custom/NPCOutline"
     {
         _MainTex ("Sprite Texture", 2D) = "white" {}
         _OutlineColor ("Outline Color", Color) = (0, 0.8, 1, 1)
-        _OutlineSize ("Outline Size", Range(0.001, 0.05)) = 0.01
+        _OutlineThickness ("Outline Thickness", Range(0.001, 0.2)) = 0.05
     }
 
     SubShader
@@ -47,7 +47,7 @@ Shader "Custom/NPCOutline"
             sampler2D _MainTex;
             float4 _MainTex_TexelSize;
             fixed4 _OutlineColor;
-            float _OutlineSize;
+            float _OutlineThickness;
 
             v2f vert(appdata v)
             {
@@ -55,6 +55,7 @@ Shader "Custom/NPCOutline"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
                 o.color = v.color;
+
                 return o;
             }
 
@@ -63,7 +64,7 @@ Shader "Custom/NPCOutline"
                 fixed4 original = tex2D(_MainTex, i.uv);
 
                 float2 offset = _MainTex_TexelSize.xy
-                                * (_OutlineSize * 100);
+              * (_OutlineThickness * 1000);
 
                 float alpha = 0;
 
@@ -80,8 +81,17 @@ Shader "Custom/NPCOutline"
                 fixed outlineAlpha = saturate(alpha - original.a);
 
                 fixed4 result = original;
-                result.rgb = lerp(original.rgb, _OutlineColor.rgb, outlineAlpha);
-                result.a = max(original.a, outlineAlpha * _OutlineColor.a);
+
+                result.rgb = lerp(
+                    original.rgb,
+                    _OutlineColor.rgb,
+                    outlineAlpha
+                );
+
+                result.a = max(
+                    original.a,
+                    outlineAlpha * _OutlineColor.a
+                );
 
                 return result * i.color;
             }
