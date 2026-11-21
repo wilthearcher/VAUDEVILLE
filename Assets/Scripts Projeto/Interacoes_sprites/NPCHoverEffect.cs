@@ -7,13 +7,14 @@ public class NPCHoverEffect : MonoBehaviour
     [SerializeField] private SpriteRenderer npcRenderer;
     [SerializeField] private SpriteRenderer auraRenderer;
 
+    private bool hoverAllowed = true;
+    private bool isPointerOver;
+
     private void Awake()
     {
-        // Primeiro, procura o SpriteRenderer do próprio NPC.
         if (npcRenderer == null)
             npcRenderer = GetComponent<SpriteRenderer>();
 
-        // Se não encontrou, procura nos filhos.
         SpriteRenderer[] renderers =
             GetComponentsInChildren<SpriteRenderer>(true);
 
@@ -29,7 +30,6 @@ public class NPCHoverEffect : MonoBehaviour
             }
         }
 
-        // Procura a aura pelo nome.
         if (auraRenderer == null)
         {
             foreach (SpriteRenderer renderer in renderers)
@@ -43,8 +43,6 @@ public class NPCHoverEffect : MonoBehaviour
             }
         }
 
-        // Se não encontrou pelo nome, procura outro
-        // SpriteRenderer nos objetos filhos.
         if (auraRenderer == null && npcRenderer != null)
         {
             foreach (SpriteRenderer renderer in renderers)
@@ -58,23 +56,10 @@ public class NPCHoverEffect : MonoBehaviour
             }
         }
 
-        if (npcRenderer == null)
+        if (npcRenderer == null || auraRenderer == null)
         {
             Debug.LogError(
-                "SpriteRenderer do NPC não encontrado em: " + gameObject.name,
-                this
-            );
-
-            enabled = false;
-            return;
-        }
-
-        if (auraRenderer == null)
-        {
-            Debug.LogError(
-                "SpriteRenderer da Aura não encontrado em: " + gameObject.name,
-                this
-            );
+                "NPCHoverEffect: referências não encontradas.", this);
 
             enabled = false;
             return;
@@ -88,25 +73,59 @@ public class NPCHoverEffect : MonoBehaviour
         if (npcRenderer == null || auraRenderer == null)
             return;
 
+        // Mantém a aura sincronizada com o sprite do NPC.
         auraRenderer.sprite = npcRenderer.sprite;
         auraRenderer.flipX = npcRenderer.flipX;
         auraRenderer.flipY = npcRenderer.flipY;
+
+        // Se o NPC estiver invisível, a aura também ficará invisível.
+        if (!npcRenderer.enabled)
+        {
+            auraRenderer.enabled = false;
+            isPointerOver = false;
+        }
+        else
+        {
+            UpdateAura();
+        }
     }
 
     private void OnMouseEnter()
     {
-        if (auraRenderer != null)
-            auraRenderer.enabled = true;
+        if (npcRenderer == null || !npcRenderer.enabled)
+            return;
+
+        isPointerOver = true;
+        UpdateAura();
     }
 
     private void OnMouseExit()
     {
-        if (auraRenderer != null)
-            auraRenderer.enabled = false;
+        isPointerOver = false;
+        UpdateAura();
+    }
+
+    public void SetHoverEnabled(bool allowed)
+    {
+        hoverAllowed = allowed;
+        UpdateAura();
+    }
+
+    private void UpdateAura()
+    {
+        if (auraRenderer == null || npcRenderer == null)
+            return;
+
+        auraRenderer.enabled =
+            hoverAllowed &&
+            isPointerOver &&
+            npcRenderer.enabled;
     }
 
     private void OnDisable()
     {
+        isPointerOver = false;
+
         if (auraRenderer != null)
             auraRenderer.enabled = false;
     }
