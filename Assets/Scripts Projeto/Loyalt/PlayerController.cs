@@ -1,4 +1,4 @@
-using System; // alteração para movimentação cojunta com NPCFollower 
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -25,78 +25,60 @@ public class PlayerController : MonoBehaviour
 
     private Transform playerTransform;
     private Camera mainCamera;
-    private float cameraDistance;
 
     private bool isDialogueActive;
 
-    // Alterações para movimentação conjunta com NPCFollower
     private bool isMovingToSequencePosition;
     private bool isMovementLocked;
 
+    private bool externalMovementLocked;
+    private bool isSpecialMovement;
+    private Action specialMovementCallback;
+
     public event Action OnSequencePositionReached;
-    // ================================================
+
     private void Awake()
     {
         playerTransform = transform;
         mainCamera = Camera.main;
 
-        // Verifica os limites do cenário.
         if (leftLimit == null || rightLimit == null)
         {
-            Debug.LogError(
-                "LeftLimit ou RightLimit não foram atribuídos!"
-            );
-
+            Debug.LogError("LeftLimit ou RightLimit não foram atribuídos!");
             enabled = false;
             return;
         }
 
-        // Obtém os componentes necessários.
         if (animator == null)
             animator = GetComponent<Animator>();
 
         if (spriteRenderer == null)
             spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // Verifica as referências.
         if (mainCamera == null ||
             animator == null ||
             spriteRenderer == null ||
             dialogueManager == null)
         {
-            Debug.LogError(
-                "Verifique as referências do PlayerController!"
-            );
-
+            Debug.LogError("Verifique as referências do PlayerController!");
             enabled = false;
             return;
         }
 
-        // Define os limites de movimentação.
         minX = leftLimit.position.x + margemLimite;
         maxX = rightLimit.position.x - margemLimite;
 
         if (minX > maxX)
         {
-            Debug.LogError(
-                "Os limites do cenário estão invertidos ou muito próximos!"
-            );
-
+            Debug.LogError("Os limites do cenário estão invertidos ou muito próximos!");
             enabled = false;
             return;
         }
 
-        // Define a posição inicial como destino.
         targetX = Mathf.Clamp(
             playerTransform.position.x,
             minX,
             maxX
-        );
-
-        // Calcula a distância entre a câmera e o jogador.
-        cameraDistance = Mathf.Abs(
-            mainCamera.transform.position.z -
-            playerTransform.position.z
         );
 
         isDialogueActive = dialogueManager.IsDialogueOpen;
@@ -105,36 +87,14 @@ public class PlayerController : MonoBehaviour
     private void OnEnable()
     {
         if (dialogueManager != null)
-        {
-            dialogueManager.OnDialogueStateChanged +=
-                HandleDialogueState;
-        }
+            dialogueManager.OnDialogueStateChanged += HandleDialogueState;
     }
 
     private void OnDisable()
     {
         if (dialogueManager != null)
-        {
-            dialogueManager.OnDialogueStateChanged -=
-                HandleDialogueState;
-        }
+            dialogueManager.OnDialogueStateChanged -= HandleDialogueState;
     }
-
-    /*private void Update() alteração para movimentação conjunta com NPCFollower
-    {
-        // Bloqueia a movimentação durante o diálogo.
-        if (isDialogueActive)
-        {
-            animator.SetBool("isWalking", false);
-            return;
-        }
-
-        DetectMouseClick();
-
-        MovePlayer();
-
-        UpdateAnimation();
-    }*/
 
     private void Update()
     {
@@ -144,40 +104,42 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Movimentação automática durante a sequência.
         if (isMovingToSequencePosition)
         {
             MovePlayer();
             UpdateAnimation();
 
-            /*if (Mathf.Approximately(
-                playerTransform.position.x,
-                targetX))
-            {
-                isMovingToSequencePosition = false;
-                isMovementLocked = true;
-
-                animator.SetBool("isWalking", false);
-
-                OnSequencePositionReached?.Invoke();
-            }*/
-
-            if (Mathf.Approximately(
-                playerTransform.position.x,
-                targetX))
+            if (Mathf.Approximately(playerTransform.position.x, targetX))
             {
                 isMovingToSequencePosition = false;
                 isMovementLocked = false;
 
                 animator.SetBool("isWalking", false);
 
-                OnSequencePositionReached?.Invoke();
+                if (isSpecialMovement)
+                {
+                    isSpecialMovement = false;
+
+                    Action callback = specialMovementCallback;
+                    specialMovementCallback = null;
+
+                    callback?.Invoke();
+                }
+                else
+                {
+                    OnSequencePositionReached?.Invoke();
+                }
             }
 
             return;
         }
 
-        // Impede novos comandos de movimentação.
+        if (externalMovementLocked)
+        {
+            animator.SetBool("isWalking", false);
+            return;
+        }
+
         if (isMovementLocked)
         {
             animator.SetBool("isWalking", false);
@@ -193,37 +155,39 @@ public class PlayerController : MonoBehaviour
 
     private void DetectMouseClick()
     {
-        // Verifica se o botão esquerdo do mouse foi pressionado.
         if (!Input.GetMouseButtonDown(0))
             return;
 
-        // Ignora cliques sobre a interface.
         if (EventSystem.current != null &&
             EventSystem.current.IsPointerOverGameObject())
-        {
             return;
-        }
 
-        // Converte a posição do mouse para o mundo.
-        Vector3 mousePosition = Input.mousePosition;
-
-        mousePosition.z = cameraDistance;
-
-        Vector3 worldPosition =
-            mainCamera.ScreenToWorldPoint(mousePosition);
-
-        Vector2 clickPosition = new Vector2(
-            worldPosition.x,
-            worldPosition.y
+        Vector3 clickPosition = mainCamera.ScreenToWorldPoint(
+            Input.mousePosition
         );
 
-        // Procura todos os Colliders na posição clicada.
-        Collider2D[] hits =
-            Physics2D.OverlapPointAll(clickPosition);
+        clickPosition.z = 0f;
 
-        // Verifica se algum dos objetos encontrados é um NPC.
+        Collider2D[] hits = Physics2D.OverlapPointAll(clickPosition);
+
         foreach (Collider2D hit in hits)
         {
+            // Objetos especiais: mesa e porta.
+            OfficeActionObject officeAction =
+    hit.GetComponent<OfficeActionObject>();
+
+if (officeAction == null)
+{
+    officeAction = hit.GetComponentInParent<OfficeActionObject>();
+}
+
+if (officeAction != null)
+{
+    officeAction.Interact();
+    return;
+}
+            
+            // NPCs interativos.
             NPCInteraction npc =
                 hit.GetComponentInParent<NPCInteraction>();
 
@@ -234,9 +198,9 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Se não encontrou um NPC, movimenta o jogador.
+        // Clique no cenário: movimentação normal.
         targetX = Mathf.Clamp(
-            worldPosition.x,
+            clickPosition.x,
             minX,
             maxX
         );
@@ -248,7 +212,6 @@ public class PlayerController : MonoBehaviour
 
         if (dialogueActive)
         {
-            // Interrompe qualquer movimento em andamento.
             targetX = playerTransform.position.x;
             animator.SetBool("isWalking", false);
         }
@@ -275,27 +238,23 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateAnimation()
     {
-        float direction =
-            targetX - playerTransform.position.x;
+        float direction = targetX - playerTransform.position.x;
 
-        bool isMoving =
-            !Mathf.Approximately(direction, 0f);
+        bool isMoving = !Mathf.Approximately(direction, 0f);
 
         animator.SetBool("isWalking", isMoving);
 
-        // Ajusta a direção do personagem.
         if (direction < 0f)
-        {
             spriteRenderer.flipX = true;
-        }
         else if (direction > 0f)
-        {
             spriteRenderer.flipX = false;
-        }
     }
 
     public void StopAndMoveTo(Vector3 destination)
     {
+        specialMovementCallback = null;
+        isSpecialMovement = false;
+
         isMovementLocked = false;
         isMovingToSequencePosition = true;
 
@@ -311,9 +270,50 @@ public class PlayerController : MonoBehaviour
         isMovingToSequencePosition = false;
         isMovementLocked = false;
 
-        targetX = playerTransform.position.x;
+        specialMovementCallback = null;
+        isSpecialMovement = false;
 
         animator.SetBool("isWalking", false);
+
+        OnSequencePositionReached?.Invoke();
     }
 
+    public void SetExternalMovementLocked(bool locked)
+    {
+        externalMovementLocked = locked;
+
+        if (locked)
+        {
+            isMovingToSequencePosition = false;
+
+            specialMovementCallback = null;
+            isSpecialMovement = false;
+
+            targetX = playerTransform.position.x;
+
+            animator.SetBool("isWalking", false);
+        }
+        else
+        {
+            animator.SetBool("isWalking", false);
+        }
+    }
+
+    public void MoveToSpecialPosition(
+        Vector3 destination,
+        Action onReached)
+    {
+        specialMovementCallback = onReached;
+        isSpecialMovement = true;
+
+        externalMovementLocked = false;
+        isMovementLocked = false;
+        isMovingToSequencePosition = true;
+
+        targetX = Mathf.Clamp(
+            destination.x,
+            minX,
+            maxX
+        );
+    }
 }

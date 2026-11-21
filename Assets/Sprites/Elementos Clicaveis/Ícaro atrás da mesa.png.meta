@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: a5ec33bba266a0148951ea8673e2c722
+guid: b21ac0af0306d6245ba2fe967d50fab8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8500152202109602312
-    second: bEBUNS-removebg-preview_0
-  - first:
-      213: 1695277483467195623
-    second: bEBUNS-removebg-preview_1
+      213: -5442462908098358555
+    second: "\xCDcaro atr\xE1s da mesa_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -118,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: bEBUNS-removebg-preview_0
+      name: "\xCDcaro atr\xE1s da mesa_0"
       rect:
         serializedVersion: 2
-        x: 5
-        y: 0
-        width: 196
-        height: 216
+        x: 2871
+        y: 50
+        width: 615
+        height: 564
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -133,30 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8f5b080ab94690a80800000000000000
-      internalID: -8500152202109602312
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: bEBUNS-removebg-preview_1
-      rect:
-        serializedVersion: 2
-        x: 188
-        y: 16
-        width: 147
-        height: 233
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7e4c7c5a3e5d68710800000000000000
-      internalID: 1695277483467195623
+      spriteID: 5e2de8b02dc7874b0800000000000000
+      internalID: -5442462908098358555
       vertices: []
       indices: 
       edges: []
@@ -175,8 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      bEBUNS-removebg-preview_0: -8500152202109602312
-      bEBUNS-removebg-preview_1: 1695277483467195623
+      "\xCDcaro atr\xE1s da mesa_0": -5442462908098358555
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

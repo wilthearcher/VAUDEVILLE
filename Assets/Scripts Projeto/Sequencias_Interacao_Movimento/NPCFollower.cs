@@ -100,7 +100,6 @@ public class NPCFollower : MonoBehaviour
     }
 }*/
 
-
 using System;
 using UnityEngine;
 

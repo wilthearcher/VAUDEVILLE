@@ -1,0 +1,366 @@
+fileFormatVersion: 2
+guid: 236dee0ce2d7f1a4ab2ef029eb0fa9f0
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2356046321033198639
+    second: "spritesheet seguran\xE7a_0"
+  - first:
+      213: 7983479201904056398
+    second: "spritesheet seguran\xE7a_1"
+  - first:
+      213: -3370886204347101071
+    second: "spritesheet seguran\xE7a_2"
+  - first:
+      213: -7665434245866417959
+    second: "spritesheet seguran\xE7a_3"
+  - first:
+      213: -2532660326877455224
+    second: "spritesheet seguran\xE7a_4"
+  - first:
+      213: -4518261363193891330
+    second: "spritesheet seguran\xE7a_5"
+  - first:
+      213: 5170664902003749398
+    second: "spritesheet seguran\xE7a_6"
+  - first:
+      213: -6721219572370348218
+    second: "spritesheet seguran\xE7a_7"
+  - first:
+      213: -8071192897026350800
+    second: "spritesheet seguran\xE7a_8"
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: "spritesheet seguran\xE7a_0"
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 2467
+        width: 559
+        height: 1199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d343789a54ad4fd0800000000000000
+      internalID: -2356046321033198639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "spritesheet seguran\xE7a_1"
+      rect:
+        serializedVersion: 2
+        x: 719
+        y: 2475
+        width: 560
+        height: 1190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e48d53d29040bce60800000000000000
+      internalID: 7983479201904056398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "spritesheet seguran\xE7a_2"
+      rect:
+        serializedVersion: 2
+        x: 1387
+        y: 2473
+        width: 560
+        height: 1197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17050ab5bd43831d0800000000000000
+      internalID: -3370886204347101071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "spritesheet seguran\xE7a_3"
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 1240
+        width: 615
+        height: 1190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d09406aa28ee9590800000000000000
+      internalID: -7665434245866417959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "spritesheet seguran\xE7a_4"
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 1247
+        width: 602
+        height: 1184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88c9ebfe9de2adcd0800000000000000
+      internalID: -2532660326877455224
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "spritesheet seguran\xE7a_5"
+      rect:
+        serializedVersion: 2
+        x: 1379
+        y: 1250
+        width: 568
+        height: 1187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef5b47c9a39eb41c0800000000000000
+      internalID: -4518261363193891330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "spritesheet seguran\xE7a_6"
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 22
+        width: 560
+        height: 1192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61273804554e1c740800000000000000
+      internalID: 5170664902003749398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "spritesheet seguran\xE7a_7"
+      rect:
+        serializedVersion: 2
+        x: 719
+        y: 16
+        width: 560
+        height: 1186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6476673d86e69b2a0800000000000000
+      internalID: -6721219572370348218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "spritesheet seguran\xE7a_8"
+      rect:
+        serializedVersion: 2
+        x: 1387
+        y: 17
+        width: 560
+        height: 1186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 031a61bb2dc5dff80800000000000000
+      internalID: -8071192897026350800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      "spritesheet seguran\xE7a_0": -2356046321033198639
+      "spritesheet seguran\xE7a_1": 7983479201904056398
+      "spritesheet seguran\xE7a_2": -3370886204347101071
+      "spritesheet seguran\xE7a_3": -7665434245866417959
+      "spritesheet seguran\xE7a_4": -2532660326877455224
+      "spritesheet seguran\xE7a_5": -4518261363193891330
+      "spritesheet seguran\xE7a_6": 5170664902003749398
+      "spritesheet seguran\xE7a_7": -6721219572370348218
+      "spritesheet seguran\xE7a_8": -8071192897026350800
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
