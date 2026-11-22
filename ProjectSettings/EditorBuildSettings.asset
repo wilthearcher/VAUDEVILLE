@@ -6,7 +6,25 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
+    path: Assets/Sample Scene/MenuInicial.unity
+    guid: fe478a62dc7a6a04584ff3aaa43f19ef
+  - enabled: 1
+    path: Assets/Sample Scene/TelaOpcoes.unity
+    guid: 268fc0790d945584db6bd5ca433ae0cb
+  - enabled: 1
+    path: Assets/Sample Scene/Game Scene/CineEden.unity
+    guid: cdb0f7f115d231e4782e59aa70a6fd25
+  - enabled: 1
+    path: Assets/Sample Scene/Game Scene/Corredores 1.unity
+    guid: e5627e01b6d2c844ea223fb75070a095
+  - enabled: 1
+    path: Assets/Sample Scene/Game Scene/Salao.unity
+    guid: ef6ed7de11ed4e949882bad6f6118358
+  - enabled: 1
+    path: Assets/Sample Scene/Game Scene/Corredores 2.unity
+    guid: 149df499956a3c24d8a18f0d2502a20e
+  - enabled: 1
+    path: Assets/Sample Scene/Game Scene/Sala Barao.unity
+    guid: 04333d90a98711748b90fe9fc426e6a3
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
