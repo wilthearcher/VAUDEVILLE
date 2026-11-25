@@ -1771,7 +1771,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b21ff88f4b7997f498e99f3059fcf8f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerControllerTeste
-  moveSpeed: 4
+  moveSpeed: 3.5
   leftLimit: {fileID: 1075434918}
   rightLimit: {fileID: 1622487511}
   margemLimite: 0.5

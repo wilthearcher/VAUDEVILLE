@@ -2070,6 +2070,7 @@ MonoBehaviour:
   secondInkFile: {fileID: 0}
   unlockSecondDialogueAfterFirst: 1
   canModifyLoyalty: 1
+  sceneToLoadAfterFinalDialogue: Corredores 1
 --- !u!114 &1364584799
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -5,8 +5,9 @@ using UnityEngine.SceneManagement;
 
 public class PortaCorredor2 : MonoBehaviour
 {
-    public void Porta2()
-    {
-        SceneManager.LoadScene("Sala Barao");
+   
+ 
+   public void Porta2() {
+    SceneManager.LoadScene("Sala Barao");
     }
 }

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class TelaAviso : MonoBehaviour
+public class VoltarMenu : MonoBehaviour
 {
-    public void CloseButton()
+    public void BotaoSair()
     {
         SceneManager.LoadScene("MenuInicial");
     }

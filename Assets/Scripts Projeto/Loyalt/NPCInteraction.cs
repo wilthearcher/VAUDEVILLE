@@ -17,6 +17,10 @@ public class NPCInteraction : MonoBehaviour
     [Header("Influência sobre o Vaudeville")]
     [SerializeField] private bool canModifyLoyalty = false;
 
+    [Header("Transição de scene")]
+    [Tooltip("Nome exato da scene a carregar quando o diálogo FINAL deste NPC terminar (ex.: Corredores 1). Deixe vazio para não trocar de scene.")]
+    [SerializeField] private string sceneToLoadAfterFinalDialogue;
+
     private bool firstDialogueCompleted;
     private bool secondDialogueUnlocked;
     private bool secondDialogueCompleted;
@@ -100,12 +104,20 @@ public class NPCInteraction : MonoBehaviour
         if (secondInkFile != null)
             SubscribeToDialogueManager(dialogueManager);
 
+        // A scene só é carregada no diálogo final
+        // (completeInteraction == true), nunca no primeiro
+        // diálogo de um NPC com dois diálogos.
+        string sceneToLoad = completeInteraction
+            ? sceneToLoadAfterFinalDialogue
+            : null;
+
         dialogueManager.StartDialogue(
             selectedInkFile,
             npcID,
             npcName,
             canModifyLoyalty,
-            completeInteraction
+            completeInteraction,
+            sceneToLoad
         );
 
         return dialogueManager.IsDialogueOpen;
@@ -166,4 +178,3 @@ public class NPCInteraction : MonoBehaviour
             subscribedManager.OnDialogueFinished -= HandleDialogueFinished;
     }
 }
-
