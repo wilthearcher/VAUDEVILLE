@@ -1,3 +1,4 @@
+
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -37,6 +38,10 @@ public class PlayerController : MonoBehaviour
 
     private bool cutsceneMovementLocked;
     private float targetXBeforeCutscene;
+
+    // Temporizador dos logs de diagnóstico.
+    private float debugMovementTimer;
+
     public event Action OnSequencePositionReached;
 
     private void Awake()
@@ -46,7 +51,7 @@ public class PlayerController : MonoBehaviour
 
         if (leftLimit == null || rightLimit == null)
         {
-            Debug.LogError("LeftLimit ou RightLimit não foram atribuídos!");
+            Debug.LogError("[PLAYER] LeftLimit ou RightLimit não atribuídos!");
             enabled = false;
             return;
         }
@@ -62,7 +67,14 @@ public class PlayerController : MonoBehaviour
             spriteRenderer == null ||
             dialogueManager == null)
         {
-            Debug.LogError("Verifique as referências do PlayerController!");
+            Debug.LogError("[PLAYER] Verifique as referências do PlayerController!");
+            enabled = false;
+            return;
+        }
+
+        if (moveSpeed <= 0f)
+        {
+            Debug.LogError("[PLAYER] MoveSpeed precisa ser maior que zero!");
             enabled = false;
             return;
         }
@@ -72,7 +84,7 @@ public class PlayerController : MonoBehaviour
 
         if (minX > maxX)
         {
-            Debug.LogError("Os limites do cenário estão invertidos ou muito próximos!");
+            Debug.LogError("[PLAYER] Os limites do cenário estão invertidos!");
             enabled = false;
             return;
         }
@@ -84,6 +96,8 @@ public class PlayerController : MonoBehaviour
         );
 
         isDialogueActive = dialogueManager.IsDialogueOpen;
+
+        Debug.Log("[PLAYER] Limites X: " + minX + " até " + maxX);
     }
 
     private void OnEnable()
@@ -100,6 +114,14 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // Movimento especial tem prioridade sobre os bloqueios.
+
+        if (isMovingToSequencePosition)
+        {
+            UpdateSequenceMovement();
+            return;
+        }
+
         if (isDialogueActive)
         {
             animator.SetBool("isWalking", false);
@@ -109,36 +131,6 @@ public class PlayerController : MonoBehaviour
         if (cutsceneMovementLocked)
         {
             animator.SetBool("isWalking", false);
-            return;
-        }
-
-        if (isMovingToSequencePosition)
-        {
-            MovePlayer();
-            UpdateAnimation();
-
-            if (Mathf.Approximately(playerTransform.position.x, targetX))
-            {
-                isMovingToSequencePosition = false;
-                isMovementLocked = false;
-
-                animator.SetBool("isWalking", false);
-
-                if (isSpecialMovement)
-                {
-                    isSpecialMovement = false;
-
-                    Action callback = specialMovementCallback;
-                    specialMovementCallback = null;
-
-                    callback?.Invoke();
-                }
-                else
-                {
-                    OnSequencePositionReached?.Invoke();
-                }
-            }
-
             return;
         }
 
@@ -157,9 +149,87 @@ public class PlayerController : MonoBehaviour
         DetectMouseClick();
 
         MovePlayer();
-
         UpdateAnimation();
     }
+
+    // =====================================================
+    // MOVIMENTAÇÃO ESPECIAL
+    // =====================================================
+
+    private void UpdateSequenceMovement()
+    {
+        MovePlayer();
+        UpdateAnimation();
+
+        debugMovementTimer += Time.deltaTime;
+
+        // Exibe a posição e a distância a cada meio segundo.
+        if (debugMovementTimer >= 0.5f)
+        {
+            debugMovementTimer = 0f;
+
+            float currentX = playerTransform.position.x;
+            float distance = Mathf.Abs(currentX - targetX);
+
+            Debug.Log(
+                "[PLAYER DEBUG] Atual: " + currentX +
+                " | Destino: " + targetX +
+                " | Distância: " + distance
+            );
+        }
+
+        float remainingDistance = Mathf.Abs(
+            playerTransform.position.x - targetX
+        );
+
+        if (remainingDistance > 0.02f)
+            return;
+
+        // Garante que Ícaro termine exatamente no destino.
+        Vector3 position = playerTransform.position;
+        position.x = targetX;
+        playerTransform.position = position;
+
+        isMovingToSequencePosition = false;
+        isMovementLocked = false;
+
+        animator.SetBool("isWalking", false);
+
+        Debug.Log("[PLAYER] Chegou à posição especial!");
+
+        if (isSpecialMovement)
+        {
+            isSpecialMovement = false;
+
+            Action callback = specialMovementCallback;
+            specialMovementCallback = null;
+
+            Debug.Log(
+                "[PLAYER] Callback encontrado: " + (callback != null)
+            );
+
+            if (callback != null)
+            {
+                Debug.Log("[PLAYER] EXECUTANDO CALLBACK AGORA!");
+
+                callback.Invoke();
+            }
+            else
+            {
+                Debug.LogError("[PLAYER] CALLBACK ESTÁ NULO!");
+            }
+        }
+        else
+        {
+            Debug.Log("[PLAYER] Executando OnSequencePositionReached.");
+
+            OnSequencePositionReached?.Invoke();
+        }
+    }
+
+    // =====================================================
+    // DETECÇÃO DE CLIQUES
+    // =====================================================
 
     private void DetectMouseClick()
     {
@@ -180,14 +250,25 @@ public class PlayerController : MonoBehaviour
 
         foreach (Collider2D hit in hits)
         {
-            // Objetos especiais: mesa e porta.
+            // PORTAS
+            DoorInteraction door =
+                hit.GetComponent<DoorInteraction>();
+
+            if (door == null)
+                door = hit.GetComponentInParent<DoorInteraction>();
+
+            if (door != null)
+            {
+                door.Interact();
+                return;
+            }
+
+            // OBJETOS ESPECIAIS
             OfficeActionObject officeAction =
-    hit.GetComponent<OfficeActionObject>();
+                hit.GetComponent<OfficeActionObject>();
 
             if (officeAction == null)
-            {
                 officeAction = hit.GetComponentInParent<OfficeActionObject>();
-            }
 
             if (officeAction != null)
             {
@@ -195,7 +276,7 @@ public class PlayerController : MonoBehaviour
                 return;
             }
 
-            // NPCs interativos.
+            // NPCs
             NPCInteraction npc =
                 hit.GetComponentInParent<NPCInteraction>();
 
@@ -206,7 +287,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Clique no cenário: movimentação normal.
+        // CLIQUE NORMAL NO CENÁRIO.
         targetX = Mathf.Clamp(
             clickPosition.x,
             minX,
@@ -214,16 +295,24 @@ public class PlayerController : MonoBehaviour
         );
     }
 
+    // =====================================================
+    // DIÁLOGOS
+    // =====================================================
+
     private void HandleDialogueState(bool dialogueActive)
     {
         isDialogueActive = dialogueActive;
 
-        if (dialogueActive)
+        if (dialogueActive && !isMovingToSequencePosition)
         {
             targetX = playerTransform.position.x;
             animator.SetBool("isWalking", false);
         }
     }
+
+    // =====================================================
+    // MOVIMENTAÇÃO NORMAL
+    // =====================================================
 
     private void MovePlayer()
     {
@@ -248,7 +337,7 @@ public class PlayerController : MonoBehaviour
     {
         float direction = targetX - playerTransform.position.x;
 
-        bool isMoving = !Mathf.Approximately(direction, 0f);
+        bool isMoving = Mathf.Abs(direction) > 0.001f;
 
         animator.SetBool("isWalking", isMoving);
 
@@ -258,23 +347,43 @@ public class PlayerController : MonoBehaviour
             spriteRenderer.flipX = false;
     }
 
+    // =====================================================
+    // MÉTODOS UTILIZADOS POR OUTROS SCRIPTS
+    // =====================================================
+
     public void StopAndMoveTo(Vector3 destination)
     {
+        if (isSpecialMovement)
+        {
+            Debug.LogWarning(
+                "[PLAYER] StopAndMoveTo ignorado: movimento especial em andamento."
+            );
+            return;
+        }
+
+        Debug.Log("[PLAYER] StopAndMoveTo foi chamado!");
+
         specialMovementCallback = null;
         isSpecialMovement = false;
 
         isMovementLocked = false;
         isMovingToSequencePosition = true;
 
-        targetX = Mathf.Clamp(
-            destination.x,
-            minX,
-            maxX
-        );
+        targetX = Mathf.Clamp(destination.x, minX, maxX);
     }
 
     public void UnlockMovement()
     {
+        if (isSpecialMovement)
+        {
+            Debug.LogWarning(
+                "[PLAYER] UnlockMovement ignorado: movimento especial em andamento."
+            );
+            return;
+        }
+
+        Debug.Log("[PLAYER] UnlockMovement foi chamado!");
+
         isMovingToSequencePosition = false;
         isMovementLocked = false;
 
@@ -290,40 +399,54 @@ public class PlayerController : MonoBehaviour
     {
         externalMovementLocked = locked;
 
-        if (locked)
+        if (locked && !isMovingToSequencePosition)
         {
-            isMovingToSequencePosition = false;
-
-            specialMovementCallback = null;
-            isSpecialMovement = false;
-
             targetX = playerTransform.position.x;
-
-            animator.SetBool("isWalking", false);
-        }
-        else
-        {
             animator.SetBool("isWalking", false);
         }
     }
+
+    // =====================================================
+    // MOVIMENTO ESPECIAL COM CALLBACK
+    // =====================================================
 
     public void MoveToSpecialPosition(
         Vector3 destination,
         Action onReached)
     {
+        if (isMovingToSequencePosition)
+        {
+            Debug.LogWarning(
+                "[PLAYER] Já existe uma movimentação especial em andamento."
+            );
+            return;
+        }
+
         specialMovementCallback = onReached;
         isSpecialMovement = true;
 
         externalMovementLocked = false;
         isMovementLocked = false;
-        isMovingToSequencePosition = true;
+        cutsceneMovementLocked = false;
 
         targetX = Mathf.Clamp(
             destination.x,
             minX,
             maxX
         );
+
+        isMovingToSequencePosition = true;
+
+        debugMovementTimer = 0f;
+
+        Debug.Log("[PLAYER] Indo para X: " + targetX);
+        Debug.Log("[PLAYER] Posição atual X: " + playerTransform.position.x);
+        Debug.Log("[PLAYER] Callback recebido: " + (onReached != null));
     }
+
+    // =====================================================
+    // BLOQUEIO DE CUTSCENE
+    // =====================================================
 
     public void SetCutsceneMovementLocked(bool locked)
     {
@@ -332,6 +455,14 @@ public class PlayerController : MonoBehaviour
 
         if (locked)
         {
+            if (isMovingToSequencePosition)
+            {
+                Debug.LogWarning(
+                    "[PLAYER] Bloqueio de cutscene ignorado durante movimento especial."
+                );
+                return;
+            }
+
             targetXBeforeCutscene = targetX;
             targetX = playerTransform.position.x;
 

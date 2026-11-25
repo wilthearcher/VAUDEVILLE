@@ -4449,7 +4449,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 206.51184, y: 2.4849854}
+  m_AnchoredPosition: {x: 0, y: 40}
   m_SizeDelta: {x: 891.25, y: 177.03}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1582254012
@@ -4472,10 +4472,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Acabou !!!!
+  m_text: "O \"Bar\xE3o\", apesar das raz\xF5es claras para desconfiar do jovem, viu sua persist\xEAncia por respostas com potencial. O resultado: a chance de \xCDcaro fazer a diferen\xE7a, seja para o \xC9den, para Manaus ou para o mundo."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 45c34e581d67fc941aeed8c170b0dc34, type: 2}
-  m_sharedMaterial: {fileID: -4351666135400707000, guid: 45c34e581d67fc941aeed8c170b0dc34, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7dc0edb2d0e3ca94495965d8724a613c, type: 2}
+  m_sharedMaterial: {fileID: -7392609571045671656, guid: 7dc0edb2d0e3ca94495965d8724a613c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4499,14 +4499,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 178.4
-  m_fontSizeBase: 178.4
+  m_fontSize: 60
+  m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0

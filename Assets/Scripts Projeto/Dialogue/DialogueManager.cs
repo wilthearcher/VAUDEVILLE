@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 using Ink.Runtime;
@@ -33,15 +34,16 @@ public class DialogueManager : MonoBehaviour
 
     private bool completeInteractionOnFinish = true;
 
+    // Nome da scene a carregar quando o diálogo terminar.
+    private string sceneToLoadOnFinish;
+
     [Header("Configuração do texto")]
     [SerializeField] private int maxLinesPerPage = 4;
 
     private List<string> dialoguePages = new List<string>();
     private int currentPageIndex = 0;
-    
 
     public event System.Action<string> OnDialogueFinished;
-    //private bool waitingToFinish;
 
     private readonly List<GameObject> spawnedChoices =
         new List<GameObject>();
@@ -54,7 +56,13 @@ public class DialogueManager : MonoBehaviour
         closeButton.onClick.AddListener(CloseDialogue);
     }
 
-    public void StartDialogue(InkFile inkFile, string npcID, string npcName, bool canModifyLoyalty, bool completeInteraction = true)
+    public void StartDialogue(
+        InkFile inkFile,
+        string npcID,
+        string npcName,
+        bool canModifyLoyalty,
+        bool completeInteraction = true,
+        string sceneToLoad = null)
     {
         if (IsDialogueOpen)
             return;
@@ -82,6 +90,7 @@ public class DialogueManager : MonoBehaviour
         currentNPCCanModifyLoyalty = canModifyLoyalty;
 
         completeInteractionOnFinish = completeInteraction;
+        sceneToLoadOnFinish = sceneToLoad;
 
         Debug.Log("ARQUIVO INK: " + inkFile.name);
 
@@ -99,8 +108,6 @@ public class DialogueManager : MonoBehaviour
         OnDialogueStateChanged?.Invoke(true);
 
         npcNameText.text = currentNPCName;
-
-        //waitingToFinish = false;
 
         ContinueDialogue();
     }
@@ -137,7 +144,6 @@ public class DialogueManager : MonoBehaviour
 
             return;
         }
-
 
         if (story.currentChoices.Count > 0)
         {
@@ -253,7 +259,6 @@ public class DialogueManager : MonoBehaviour
         {
             Choice choice = story.currentChoices[i];
 
-
             int minLoyalty = GetTagValue(
                 choice,
                 "min_loyalty",
@@ -335,19 +340,8 @@ public class DialogueManager : MonoBehaviour
             Debug.Log("Lealdade depois: " + LoyaltyManager.Instance.CurrentLoyalty);
         }
 
-        // A escolha já foi feita: a interação não poderá ser repetida.
-        if (interactionStarted)
-        {
-            /*InteractionTracker.Instance.CompleteInteraction(
-                 currentNPCID
-             );
-
-             interactionStarted = false;*/
-        }
-
-        //TESTE PRA PORRA DA DEMO
-        bool endsDemo = false;
         // Verifica se a alternativa selecionada encerra a demo.
+        bool endsDemo = false;
 
         if (story.currentChoices[choiceIndex].tags != null)
         {
@@ -372,7 +366,6 @@ public class DialogueManager : MonoBehaviour
 
         // Continua normalmente, exibindo a resposta do Barão.
         ContinueDialogue();
-
     }
 
     private int GetTagValue(
@@ -458,10 +451,26 @@ public class DialogueManager : MonoBehaviour
 
         string finishedID = currentNPCID;
 
+        // Captura antes do reset, que limpa esses valores.
+        string sceneToLoad = sceneToLoadOnFinish;
+        bool endingDemo = demoEndPending;
+
+        Debug.Log("FinishInteraction -> scene: '" + sceneToLoad + "' | endingDemo: " + endingDemo);
+
         OnDialogueFinished?.Invoke(finishedID);
 
         ResetDialogueState();
+
+        // Se a demo vai ser encerrada, ela cuida da própria transição.
+        if (!endingDemo && !string.IsNullOrEmpty(sceneToLoad))
+        {
+            if (SceneTransition.Instance != null)
+                SceneTransition.Instance.LoadScene(sceneToLoad);
+            else
+                SceneManager.LoadScene(sceneToLoad); // fallback sem fade
+        }
     }
+
     private void ShowAlreadyInteractedMessage(string npcName)
     {
         dialoguePanel.SetActive(true);
@@ -505,6 +514,7 @@ public class DialogueManager : MonoBehaviour
 
         currentNPCID = null;
         currentNPCName = null;
+        sceneToLoadOnFinish = null;
 
         currentNPCCanModifyLoyalty = false;
 

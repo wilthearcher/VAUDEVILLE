@@ -1,47 +1,60 @@
 
 using UnityEngine;
-using System;
 
 public class DoorInteraction : MonoBehaviour
 {
     [Header("Hover")]
     [SerializeField] private NPCHoverEffect doorHover;
 
+    [Header("Transição")]
+    [SerializeField] private PortaTransicao portaTransicao;
+
     private bool canInteract;
 
-    public event Action OnDoorClicked;
+    private void Awake()
+    {
+        if (portaTransicao == null)
+        {
+            portaTransicao = GetComponent<PortaTransicao>();
+
+            if (portaTransicao == null)
+                portaTransicao = GetComponentInParent<PortaTransicao>();
+        }
+
+        // A porta começa disponível assim que a cena é carregada.
+        canInteract = true;
+
+        if (doorHover != null)
+            doorHover.SetHoverEnabled(true);
+    }
 
     public void SetInteractionEnabled(bool value)
     {
         canInteract = value;
 
-        // Ativa ou desativa o hover junto com a interação.
         if (doorHover != null)
-        {
             doorHover.SetHoverEnabled(value);
-        }
-        else
-        {
-            Debug.LogWarning("[DOOR] NPCHoverEffect não foi atribuído.");
-        }
     }
 
-    private void OnMouseDown()
+    public void Interact()
     {
         if (!canInteract)
             return;
 
+        if (portaTransicao == null)
+        {
+            Debug.LogError("[DOOR] PortaTransicao não foi atribuída!");
+            return;
+        }
+
         Debug.Log("[DOOR] Porta selecionada!");
 
-        // Impede interações repetidas.
         canInteract = false;
 
         if (doorHover != null)
-        {
             doorHover.SetHoverEnabled(false);
-        }
 
-        OnDoorClicked?.Invoke();
+        portaTransicao.IrParaScene();
     }
 
     private void OnDisable()
@@ -49,8 +62,6 @@ public class DoorInteraction : MonoBehaviour
         canInteract = false;
 
         if (doorHover != null)
-        {
             doorHover.SetHoverEnabled(false);
-        }
     }
 }

@@ -119,6 +119,84 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &37262633
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 37262635}
+  - component: {fileID: 37262634}
+  m_Layer: 0
+  m_Name: frenteportasalao
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!61 &37262634
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 37262633}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
+--- !u!4 &37262635
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 37262633}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.49, y: -4.99, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &59757175
 GameObject:
   m_ObjectHideFlags: 0
@@ -1152,6 +1230,7 @@ MonoBehaviour:
   secondInkFile: {fileID: 0}
   unlockSecondDialogueAfterFirst: 1
   canModifyLoyalty: 0
+  sceneToLoadAfterFinalDialogue: 
 --- !u!61 &289539900
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1314,6 +1393,7 @@ MonoBehaviour:
   secondInkFile: {fileID: 6231892579173505729, guid: 257a6c9e08c69d249916702c43658860, type: 3}
   unlockSecondDialogueAfterFirst: 1
   canModifyLoyalty: 1
+  sceneToLoadAfterFinalDialogue: 
 --- !u!114 &325959950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1784,6 +1864,7 @@ MonoBehaviour:
   secondInkFile: {fileID: 0}
   unlockSecondDialogueAfterFirst: 1
   canModifyLoyalty: 1
+  sceneToLoadAfterFinalDialogue: 
 --- !u!61 &456338052
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1900,8 +1981,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.9390895, y: -4.083357, z: 0}
-  m_LocalScale: {x: 0.14274529, y: 0.16016816, z: 0.09937731}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.14, y: 0.1570878, z: 0.09746608}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1740999483}
   m_Father: {fileID: 0}
@@ -2171,6 +2252,7 @@ MonoBehaviour:
   secondInkFile: {fileID: 0}
   unlockSecondDialogueAfterFirst: 1
   canModifyLoyalty: 1
+  sceneToLoadAfterFinalDialogue: 
 --- !u!61 &529400957
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2852,7 +2934,7 @@ GameObject:
   - component: {fileID: 1088444939}
   - component: {fileID: 1088444938}
   m_Layer: 0
-  m_Name: SalonCutscenePlayer
+  m_Name: VideoPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2995,9 +3077,9 @@ Transform:
   m_GameObject: {fileID: 1224130469}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.9700723, y: -3.4711199, z: 0}
-  m_LocalScale: {x: 0.0974, y: 0.0974, z: 0.0974}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: -7.04, y: -3.69, z: 0}
+  m_LocalScale: {x: 0.07, y: 0.07, z: 0.07}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3314,8 +3396,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2.3071573, y: -3.6782024, z: 0}
-  m_LocalScale: {x: 0.10280737, y: 0.10280737, z: 0.10280737}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.09, y: 0.09, z: 0.09}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3647,6 +3729,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoorInteraction
   doorHover: {fileID: 0}
+  portaTransicao: {fileID: 1418653682}
 --- !u!61 &1418653677
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3762,9 +3845,9 @@ Transform:
   m_GameObject: {fileID: 1418653674}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.053402, y: -4.243299, z: 0}
-  m_LocalScale: {x: 0.2618474, y: 0.2618474, z: 0.2618474}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 9.32, y: -4.257, z: -0.34}
+  m_LocalScale: {x: 0.28, y: 0.28, z: 0.28}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1607552694}
   m_Father: {fileID: 0}
@@ -3814,8 +3897,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1418653682}
-        m_TargetAssemblyTypeName: SaidaSalao, Assembly-CSharp
-        m_MethodName: PortaDireitaSalao
+        m_TargetAssemblyTypeName: PortaTransicao, Assembly-CSharp
+        m_MethodName: IrParaScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3834,9 +3917,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1418653674}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b33f9b223534964282963e97add0108, type: 3}
+  m_Script: {fileID: 11500000, guid: 678fac7bae963b74ca99a297ba7d6b49, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SaidaSalao
+  m_EditorClassIdentifier: Assembly-CSharp::PortaTransicao
+  playerController: {fileID: 1975293320}
+  pontoChegada: {fileID: 37262635}
+  sceneToLoad: Corredores 2
 --- !u!1 &1435134674
 GameObject:
   m_ObjectHideFlags: 0
@@ -4629,6 +4715,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DemoEndController
   demoEndPanel: {fileID: 1070332576}
+--- !u!1 &1935131532
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1935131534}
+  - component: {fileID: 1935131533}
+  m_Layer: 0
+  m_Name: PortaCorredor2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1935131533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1935131532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a188b30d15e5d01409c6d944c08c22ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortaCorredor2
+--- !u!4 &1935131534
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1935131532}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.10291, y: -0.43613, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1973645824
 GameObject:
   m_ObjectHideFlags: 0
@@ -4777,7 +4907,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1975293315}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -4909,8 +5039,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 206.51184, y: 2.4849854}
-  m_SizeDelta: {x: 891.25, y: 177.03}
+  m_AnchoredPosition: {x: 0, y: 8}
+  m_SizeDelta: {x: 976.4, y: 177.03}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1983228687
 MonoBehaviour:
@@ -4932,10 +5062,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Acabou !!!!
+  m_text: "\xCDcaro Delair Castro, ap\xF3s o funeral de seu av\xF4, n\xE3o retornou para sua faculdade em Londres. Sem parentes restantes ou amigos pr\xF3ximos, o jovem desapareceu em Manaus... levando consigo o nome Delair. "
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 45c34e581d67fc941aeed8c170b0dc34, type: 2}
-  m_sharedMaterial: {fileID: -4351666135400707000, guid: 45c34e581d67fc941aeed8c170b0dc34, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7dc0edb2d0e3ca94495965d8724a613c, type: 2}
+  m_sharedMaterial: {fileID: -7392609571045671656, guid: 7dc0edb2d0e3ca94495965d8724a613c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4959,14 +5089,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 178.4
-  m_fontSizeBase: 178.4
+  m_fontSize: 60
+  m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -5256,3 +5386,5 @@ SceneRoots:
   - {fileID: 1336192959}
   - {fileID: 1088444939}
   - {fileID: 1435134675}
+  - {fileID: 1935131534}
+  - {fileID: 37262635}

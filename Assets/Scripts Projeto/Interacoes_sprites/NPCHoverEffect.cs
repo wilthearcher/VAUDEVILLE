@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class NPCHoverEffect : MonoBehaviour
 {
-    [Header("Referências")]
+    [Header("Referencias")]
     [SerializeField] private SpriteRenderer npcRenderer;
     [SerializeField] private SpriteRenderer auraRenderer;
 
@@ -73,12 +73,12 @@ public class NPCHoverEffect : MonoBehaviour
         if (npcRenderer == null || auraRenderer == null)
             return;
 
-        // Mantém a aura sincronizada com o sprite do NPC.
+        // Mantem a aura sincronizada com o sprite do NPC.
         auraRenderer.sprite = npcRenderer.sprite;
         auraRenderer.flipX = npcRenderer.flipX;
         auraRenderer.flipY = npcRenderer.flipY;
 
-        // Se o NPC estiver invisível, a aura também ficará invisível.
+        // Se o NPC estiver invisivel, a aura tambem ficara invisivel.
         if (!npcRenderer.enabled)
         {
             auraRenderer.enabled = false;
