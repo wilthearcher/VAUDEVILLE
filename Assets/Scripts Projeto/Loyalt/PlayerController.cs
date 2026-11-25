@@ -35,6 +35,8 @@ public class PlayerController : MonoBehaviour
     private bool isSpecialMovement;
     private Action specialMovementCallback;
 
+    private bool cutsceneMovementLocked;
+    private float targetXBeforeCutscene;
     public event Action OnSequencePositionReached;
 
     private void Awake()
@@ -99,6 +101,12 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         if (isDialogueActive)
+        {
+            animator.SetBool("isWalking", false);
+            return;
+        }
+
+        if (cutsceneMovementLocked)
         {
             animator.SetBool("isWalking", false);
             return;
@@ -176,17 +184,17 @@ public class PlayerController : MonoBehaviour
             OfficeActionObject officeAction =
     hit.GetComponent<OfficeActionObject>();
 
-if (officeAction == null)
-{
-    officeAction = hit.GetComponentInParent<OfficeActionObject>();
-}
+            if (officeAction == null)
+            {
+                officeAction = hit.GetComponentInParent<OfficeActionObject>();
+            }
 
-if (officeAction != null)
-{
-    officeAction.Interact();
-    return;
-}
-            
+            if (officeAction != null)
+            {
+                officeAction.Interact();
+                return;
+            }
+
             // NPCs interativos.
             NPCInteraction npc =
                 hit.GetComponentInParent<NPCInteraction>();
@@ -315,5 +323,29 @@ if (officeAction != null)
             minX,
             maxX
         );
+    }
+
+    public void SetCutsceneMovementLocked(bool locked)
+    {
+        if (cutsceneMovementLocked == locked)
+            return;
+
+        if (locked)
+        {
+            targetXBeforeCutscene = targetX;
+            targetX = playerTransform.position.x;
+
+            cutsceneMovementLocked = true;
+
+            animator.SetBool("isWalking", false);
+        }
+        else
+        {
+            cutsceneMovementLocked = false;
+
+            targetX = targetXBeforeCutscene;
+
+            animator.SetBool("isWalking", false);
+        }
     }
 }
