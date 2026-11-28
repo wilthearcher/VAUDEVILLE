@@ -29,5 +29,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Sample Scene/Menus/TelaAviso.unity
     guid: 0fda068b5116a0e4abe75118502b161b
+  - enabled: 1
+    path: Assets/Sample Scene/Menus/Creditos.unity
+    guid: 3afc8f134520eee4694cc7fffc725a81
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

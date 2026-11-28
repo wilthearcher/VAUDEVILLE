@@ -1,12 +1,22 @@
 
 using UnityEngine;
 using UnityEngine.Video;
+using UnityEngine.UI;
+using System.Collections;
 
 public class SalonCutsceneController : MonoBehaviour
 {
     [Header("Vídeo")]
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private GameObject cutsceneCanvas;
+
+    [Header("Fade")]
+    [SerializeField] private CanvasGroup cutsceneCanvasGroup;
+    [SerializeField] private float fadeInDuration = 1.5f;
+    [SerializeField] private float fadeOutDuration = 1.5f;
+
+    [Header("Botão para pular")]
+    [SerializeField] private Button skipButton;
 
     [Header("Referências")]
     [SerializeField] private DialogueManager dialogueManager;
@@ -21,10 +31,18 @@ public class SalonCutsceneController : MonoBehaviour
     private bool cutsceneStarted;
     private bool cutsceneFinished;
 
+    private Coroutine fadeCoroutine;
+
     private void Awake()
     {
         if (cutsceneCanvas != null)
             cutsceneCanvas.SetActive(false);
+
+        if (cutsceneCanvasGroup != null)
+            cutsceneCanvasGroup.alpha = 0f;
+
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(false);
 
         if (videoPlayer != null)
         {
@@ -44,6 +62,9 @@ public class SalonCutsceneController : MonoBehaviour
             videoPlayer.loopPointReached += HandleVideoFinished;
             videoPlayer.errorReceived += HandleVideoError;
         }
+
+        if (skipButton != null)
+            skipButton.onClick.AddListener(SkipCutscene);
     }
 
     private void OnDisable()
@@ -56,6 +77,15 @@ public class SalonCutsceneController : MonoBehaviour
             videoPlayer.prepareCompleted -= HandleVideoPrepared;
             videoPlayer.loopPointReached -= HandleVideoFinished;
             videoPlayer.errorReceived -= HandleVideoError;
+        }
+
+        if (skipButton != null)
+            skipButton.onClick.RemoveListener(SkipCutscene);
+
+        if (fadeCoroutine != null)
+        {
+            StopCoroutine(fadeCoroutine);
+            fadeCoroutine = null;
         }
     }
 
@@ -119,6 +149,7 @@ public class SalonCutsceneController : MonoBehaviour
     {
         if (videoPlayer == null ||
             cutsceneCanvas == null ||
+            cutsceneCanvasGroup == null ||
             playerController == null ||
             baronInteraction == null)
         {
@@ -130,20 +161,28 @@ public class SalonCutsceneController : MonoBehaviour
         }
 
         cutsceneStarted = true;
+        cutsceneFinished = false;
 
-        playerController.SetCutsceneMovementLocked(true);
-
-        cutsceneCanvas.SetActive(true);
-
-        videoPlayer.Stop();
-        videoPlayer.Prepare();
-
+        // Bloqueia a movimentação de Ícaro.
         playerController.SetCutsceneMovementLocked(true);
 
         // Pausa os áudios do salão.
         PauseSceneAudio();
 
+        // Ativa a interface da cutscene.
         cutsceneCanvas.SetActive(true);
+
+        cutsceneCanvasGroup.alpha = 0f;
+        cutsceneCanvasGroup.interactable = true;
+        cutsceneCanvasGroup.blocksRaycasts = true;
+
+        // Exibe o botão de pular.
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(true);
+
+        // Prepara o vídeo.
+        videoPlayer.Stop();
+        videoPlayer.Prepare();
 
         Debug.Log("Cutscene do salão iniciada.");
     }
@@ -154,6 +193,11 @@ public class SalonCutsceneController : MonoBehaviour
             return;
 
         source.Play();
+
+        // Revela o vídeo gradualmente.
+        fadeCoroutine = StartCoroutine(
+            FadeCanvas(1f, fadeInDuration)
+        );
 
         Debug.Log("Reproduzindo cutscene.");
     }
@@ -172,27 +216,101 @@ public class SalonCutsceneController : MonoBehaviour
         FinishCutscene();
     }
 
-    private void FinishCutscene()
+    private void SkipCutscene()
     {
-        if (cutsceneFinished)
+        if (!cutsceneStarted || cutsceneFinished)
             return;
 
+        Debug.Log("Jogador pulou a cutscene.");
+
+        FinishCutscene();
+    }
+
+    private void FinishCutscene()
+    {
+        if (!cutsceneStarted || cutsceneFinished)
+            return;
+
+        // Impede que o encerramento seja executado novamente.
         cutsceneFinished = true;
 
-        videoPlayer.Stop();
+        // Interrompe o fade anterior, caso ainda esteja acontecendo.
+        if (fadeCoroutine != null)
+        {
+            StopCoroutine(fadeCoroutine);
+            fadeCoroutine = null;
+        }
 
-        cutsceneCanvas.SetActive(false);
+        // Esconde o botão durante o encerramento.
+        if (skipButton != null)
+            skipButton.gameObject.SetActive(false);
 
+        // Inicia o fade-out.
+        if (cutsceneCanvasGroup != null)
+        {
+            fadeCoroutine = StartCoroutine(
+                FinishCutsceneRoutine()
+            );
+        }
+        else
+        {
+            CompleteCutscene();
+        }
+    }
+
+    private IEnumerator FinishCutsceneRoutine()
+    {
+        yield return FadeCanvas(0f, fadeOutDuration);
+
+        CompleteCutscene();
+    }
+
+    private IEnumerator FadeCanvas(float targetAlpha, float duration)
+    {
+        float startAlpha = cutsceneCanvasGroup.alpha;
+
+        if (duration <= 0f)
+        {
+            cutsceneCanvasGroup.alpha = targetAlpha;
+            yield break;
+        }
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            cutsceneCanvasGroup.alpha = Mathf.Lerp(
+                startAlpha,
+                targetAlpha,
+                Mathf.Clamp01(elapsed / duration)
+            );
+
+            yield return null;
+        }
+
+        cutsceneCanvasGroup.alpha = targetAlpha;
+    }
+
+    private void CompleteCutscene()
+    {
+        if (videoPlayer != null)
+            videoPlayer.Stop();
+
+        if (cutsceneCanvas != null)
+            cutsceneCanvas.SetActive(false);
+
+        // Libera a movimentação de Ícaro.
         playerController.SetCutsceneMovementLocked(false);
 
+        // Libera o segundo diálogo do Barão.
         baronInteraction.UnlockSecondDialogue();
 
-        // Retoma os áudios do salão.
+        // Retoma os áudios que estavam tocando antes.
         ResumeSceneAudio();
 
-        playerController.SetCutsceneMovementLocked(false);
-
-        baronInteraction.UnlockSecondDialogue();
+        fadeCoroutine = null;
 
         Debug.Log(
             "Cutscene concluída. Segundo diálogo do Barão liberado."

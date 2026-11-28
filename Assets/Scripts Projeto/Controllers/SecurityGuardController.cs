@@ -1,7 +1,6 @@
 
 using System;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 
 public class SecurityGuardController : MonoBehaviour
@@ -18,7 +17,7 @@ public class SecurityGuardController : MonoBehaviour
     [Header("Investigação")]
     [SerializeField] private float lookDuration = 1.5f;
 
-    [Header("Informações do NPC")]
+    [Header("Identificação")]
     [SerializeField] private string npcName = "Segurança";
 
     [Header("Animação")]
@@ -28,119 +27,76 @@ public class SecurityGuardController : MonoBehaviour
 
     [Header("Balão de fala")]
     [SerializeField] private GameObject speechBubble;
-    [SerializeField] private TMP_Text speechNameText;
-    [SerializeField] private TMP_Text speechText;
+    [SerializeField] private TMPro.TMP_Text speechNameText;
+    [SerializeField] private TMPro.TMP_Text speechText;
+
+    [Header("Posição da captura")]
+    [SerializeField] private Transform caughtPosition;
+
+    [TextArea(2, 4)]
     [SerializeField] private string dialogue = "Hmm... Não há ninguém aqui.";
 
-    private Coroutine sequenceCoroutine;
-    private Action onSequenceFinished;
+    [TextArea(2, 4)]
+    [SerializeField] private string caughtDialogue = "Então era aqui que você estava!";
 
-    private bool isSequenceRunning;
-    private bool hasFinished;
+    [SerializeField] private float caughtSpeechDuration = 2.5f;
+
+    private Coroutine sequenceCoroutine;
+
+    private bool sequenceRunning;
+    private Action onSequenceFinished;
 
     private void Awake()
     {
-        if (speechBubble != null)
-            speechBubble.SetActive(false);
+        HideSpeech();
+        SetWalking(false);
     }
 
+    // INVESTIGAÇÃO NORMAL
     public bool BeginSequence(Action onFinished)
     {
-        if (isSequenceRunning)
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = true;
+
+        if (sequenceRunning)
         {
-            Debug.LogWarning("[SEGURANÇA] A sequência já está em andamento.");
+            Debug.LogWarning("[SEGURANÇA] Já existe uma sequência em andamento.");
             return false;
         }
 
-        if (entryPoint == null || centerPoint == null || exitPoint == null)
-        {
-            Debug.LogError("[SEGURANÇA] Pontos de movimentação não atribuídos.");
+        if (!ValidatePoints(true))
             return false;
-        }
 
-        if (moveSpeed <= 0f)
-        {
-            Debug.LogError("[SEGURANÇA] moveSpeed precisa ser maior que zero.");
-            return false;
-        }
-
+        sequenceRunning = true;
         onSequenceFinished = onFinished;
-        isSequenceRunning = true;
-        hasFinished = false;
 
-        if (!gameObject.activeSelf)
-            gameObject.SetActive(true);
-
+        gameObject.SetActive(true);
         transform.position = entryPoint.position;
 
-        Debug.Log("[SEGURANÇA] Ativado no EntryPoint.");
+        HideSpeech();
 
         sequenceCoroutine = StartCoroutine(GuardSequence());
+
+        Debug.Log("[SEGURANÇA] Sequência normal iniciada.");
 
         return true;
     }
 
     private IEnumerator GuardSequence()
     {
-        Debug.Log("[SEGURANÇA] Caminhando até o ponto central.");
-
         yield return MoveTo(centerPoint);
-
-        Debug.Log("[SEGURANÇA] Chegou ao ponto central.");
 
         yield return LookAround();
 
         ShowSpeechFor(npcName, dialogue);
 
-        Debug.Log("[SEGURANÇA] Investigação: balão de fala ativado.");
-
         yield return new WaitForSecondsRealtime(2.5f);
 
         HideSpeech();
 
-        Debug.Log("[SEGURANÇA] Balão de fala desativado.");
-
-        Debug.Log("[SEGURANÇA] Caminhando até o ExitPoint.");
-
         yield return MoveTo(exitPoint);
 
         FinishSequence();
-    }
-
-    private IEnumerator MoveTo(Transform destination)
-    {
-        if (destination == null)
-            yield break;
-
-        float targetX = destination.position.x;
-
-        while (Mathf.Abs(transform.position.x - targetX) > arrivalDistance)
-        {
-            float direction = Mathf.Sign(targetX - transform.position.x);
-
-            if (spriteRenderer != null)
-                spriteRenderer.flipX = direction < 0f;
-
-            SetWalking(true);
-
-            Vector3 position = transform.position;
-
-            position.x = Mathf.MoveTowards(
-                position.x,
-                targetX,
-                moveSpeed * Time.unscaledDeltaTime
-            );
-
-            transform.position = position;
-
-            yield return null;
-        }
-
-        Vector3 finalPosition = transform.position;
-        finalPosition.x = targetX;
-        transform.position = finalPosition;
-
-        SetWalking(false);
     }
 
     private IEnumerator LookAround()
@@ -148,97 +104,252 @@ public class SecurityGuardController : MonoBehaviour
         SetWalking(false);
 
         float elapsed = 0f;
+        float switchInterval = 0.5f;
+        float switchTimer = 0f;
 
         while (elapsed < lookDuration)
         {
-            if (spriteRenderer != null)
-                spriteRenderer.flipX = !spriteRenderer.flipX;
+            elapsed += Time.unscaledDeltaTime;
+            switchTimer += Time.unscaledDeltaTime;
 
-            yield return new WaitForSecondsRealtime(0.5f);
+            if (switchTimer >= switchInterval)
+            {
+                switchTimer = 0f;
 
-            elapsed += 0.5f;
+                if (spriteRenderer != null)
+                    spriteRenderer.flipX = !spriteRenderer.flipX;
+            }
+
+            yield return null;
+        }
+    }
+
+    // SEQUÊNCIA DE CAPTURA
+    public void BeginCatchSequence(Action onFinished)
+    {
+        if (sequenceRunning)
+            return;
+
+        if (caughtPosition == null && centerPoint == null)
+        {
+            Debug.LogError("[SEGURANÇA] Nenhum ponto de captura configurado.");
+            return;
         }
 
-        Debug.Log("[SEGURANÇA] Observação concluída.");
+        sequenceRunning = true;
+        onSequenceFinished = onFinished;
+
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = true;
+
+        if (sequenceCoroutine != null)
+            StopCoroutine(sequenceCoroutine);
+
+        gameObject.SetActive(true);
+
+        sequenceCoroutine = StartCoroutine(CatchSequence());
+
+        Debug.Log("[SEGURANÇA] Sequência de captura iniciada.");
     }
 
-    
-public void ShowSpeechFor(string characterName, string message)
-{
-    if (speechBubble == null)
+    private IEnumerator CatchSequence()
     {
-        Debug.LogError("[BALÃO] SpeechBubble não atribuído.");
-        return;
+        // Começa no ponto de entrada.
+        if (entryPoint != null)
+            transform.position = entryPoint.position;
+
+        // Prioriza o ponto exclusivo de captura.
+        if (caughtPosition != null)
+        {
+            yield return MoveToCaughtPosition(caughtPosition);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[SEGURANÇA] CaughtPosition não configurado. Usando CenterPoint."
+            );
+
+            yield return MoveToCaughtPosition(centerPoint);
+        }
+
+        SetWalking(false);
+
+        ShowSpeechFor(npcName, caughtDialogue);
+
+        yield return new WaitForSecondsRealtime(caughtSpeechDuration);
+
+        HideSpeech();
+
+        FinishCatchSequence();
     }
 
-    if (speechNameText != null)
+    // MOVIMENTAÇÃO EXCLUSIVA DA CAPTURA: X E Y.
+    private IEnumerator MoveToCaughtPosition(Transform target)
     {
-        speechNameText.text = characterName;
-        speechNameText.gameObject.SetActive(true);
+        if (target == null)
+            yield break;
+
+        SetWalking(true);
+
+        while (Vector2.Distance(transform.position, target.position) > arrivalDistance)
+        {
+            float direction = Mathf.Sign(target.position.x - transform.position.x);
+
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                target.position,
+                moveSpeed * Time.unscaledDeltaTime
+            );
+
+            if (spriteRenderer != null && direction != 0)
+                spriteRenderer.flipX = direction < 0;
+
+            yield return null;
+        }
+
+        transform.position = target.position;
+
+        SetWalking(false);
     }
 
-    if (speechText != null)
+    private bool ValidatePoints(bool requireExit)
     {
-        speechText.text = message;
-        speechText.gameObject.SetActive(true);
+        if (entryPoint == null)
+        {
+            Debug.LogError("[SEGURANÇA] Entry Point não foi atribuído.");
+            return false;
+        }
+
+        if (centerPoint == null)
+        {
+            Debug.LogError("[SEGURANÇA] Center Point não foi atribuído.");
+            return false;
+        }
+
+        if (requireExit && exitPoint == null)
+        {
+            Debug.LogError("[SEGURANÇA] Exit Point não foi atribuído.");
+            return false;
+        }
+
+        return true;
     }
 
-    speechBubble.SetActive(true);
+    // MOVIMENTAÇÃO NORMAL: SOMENTE EIXO X.
+    private IEnumerator MoveTo(Transform target)
+    {
+        if (target == null)
+            yield break;
 
-    Debug.Log("[BALÃO] Exibindo fala de " + characterName);
-}
+        SetWalking(true);
 
+        while (Mathf.Abs(transform.position.x - target.position.x) > arrivalDistance)
+        {
+            Vector3 currentPosition = transform.position;
+
+            float direction = Mathf.Sign(target.position.x - currentPosition.x);
+
+            currentPosition.x = Mathf.MoveTowards(
+                currentPosition.x,
+                target.position.x,
+                moveSpeed * Time.unscaledDeltaTime
+            );
+
+            transform.position = currentPosition;
+
+            if (spriteRenderer != null && direction != 0)
+                spriteRenderer.flipX = direction < 0;
+
+            yield return null;
+        }
+
+        Vector3 finalPosition = transform.position;
+        finalPosition.x = target.position.x;
+        transform.position = finalPosition;
+
+        SetWalking(false);
+    }
+
+    public void ShowSpeechFor(string characterName, string message)
+    {
+        if (speechBubble == null)
+        {
+            Debug.LogWarning("[BALÃO] Speech Bubble não foi atribuído.");
+            return;
+        }
+
+        speechBubble.SetActive(true);
+
+        if (speechNameText != null)
+            speechNameText.text = characterName;
+
+        if (speechText != null)
+            speechText.text = message;
+    }
 
     public void HideSpeech()
-{
-    if (speechBubble != null)
-        speechBubble.SetActive(false);
-}
+    {
+        if (speechBubble != null)
+            speechBubble.SetActive(false);
+    }
 
     private void SetWalking(bool walking)
     {
-        if (animator != null)
+        if (animator != null && !string.IsNullOrEmpty(walkingParameter))
             animator.SetBool(walkingParameter, walking);
     }
 
+    // FINALIZA INVESTIGAÇÃO NORMAL.
     private void FinishSequence()
     {
-        if (hasFinished)
-            return;
-
-        hasFinished = true;
-        isSequenceRunning = false;
+        sequenceRunning = false;
+        sequenceCoroutine = null;
 
         SetWalking(false);
         HideSpeech();
 
-        Debug.Log("[SEGURANÇA] Saiu da sala. Sequência finalizada.");
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = false;
 
         Action callback = onSequenceFinished;
         onSequenceFinished = null;
 
+        if (callback != null)
+            callback.Invoke();
+
+        Debug.Log("[SEGURANÇA] Investigação normal finalizada.");
+    }
+
+    // FINALIZA CAPTURA.
+    private void FinishCatchSequence()
+    {
+        sequenceRunning = false;
         sequenceCoroutine = null;
 
-        callback?.Invoke();
+        SetWalking(false);
+        HideSpeech();
+
+        Action callback = onSequenceFinished;
+        onSequenceFinished = null;
+
+        if (callback != null)
+            callback.Invoke();
 
         gameObject.SetActive(false);
+
+        Debug.Log("[SEGURANÇA] Sequência de captura finalizada.");
     }
 
     private void OnDisable()
     {
-        if (isSequenceRunning && !hasFinished)
+        if (sequenceCoroutine != null)
         {
-            if (sequenceCoroutine != null)
-                StopCoroutine(sequenceCoroutine);
-
+            StopCoroutine(sequenceCoroutine);
             sequenceCoroutine = null;
-            isSequenceRunning = false;
-            onSequenceFinished = null;
-
-            SetWalking(false);
-            HideSpeech();
-
-            Debug.LogWarning("[SEGURANÇA] Sequência interrompida.");
         }
+
+        sequenceRunning = false;
+        SetWalking(false);
+        HideSpeech();
     }
 }
