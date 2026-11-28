@@ -112,62 +112,73 @@ public class DialogueManager : MonoBehaviour
         ContinueDialogue();
     }
 
-    private void ContinueDialogue()
+    
+private void ContinueDialogue()
+{
+    if (story == null || !IsDialogueOpen)
+        return;
+
+    // Primeiro verifica se ainda existem páginas
+    // da fala atual para apresentar.
+    if (currentPageIndex < dialoguePages.Count - 1)
     {
-        if (story == null || !IsDialogueOpen)
-            return;
+        currentPageIndex++;
 
-        // Primeiro verifica se ainda existem páginas
-        // da fala atual para apresentar.
-        if (currentPageIndex < dialoguePages.Count - 1)
-        {
-            currentPageIndex++;
+        dialogueText.text = dialoguePages[currentPageIndex];
 
-            dialogueText.text = dialoguePages[currentPageIndex];
-
-            return;
-        }
-
-        // A fala terminou. Podemos avançar o Ink.
-        dialoguePages.Clear();
-        currentPageIndex = 0;
-
-        ClearChoices();
-
-        if (story.canContinue)
-        {
-            string nextText = story.Continue().Trim();
-
-            PrepareDialoguePages(nextText);
-
-            continueButton.gameObject.SetActive(true);
-
-            return;
-        }
-
-        if (story.currentChoices.Count > 0)
-        {
-            ShowChoices();
-            return;
-        }
-
-        // O Ink terminou completamente.
-        bool shouldEndDemo = demoEndPending;
-
-        FinishInteraction();
-
-        if (shouldEndDemo)
-        {
-            if (DemoEndController.Instance != null)
-            {
-                DemoEndController.Instance.EndDemo();
-            }
-            else
-            {
-                Debug.LogError("DemoEndController não encontrado.");
-            }
-        }
+        return;
     }
+
+    // A fala terminou. Podemos avançar o Ink.
+    dialoguePages.Clear();
+    currentPageIndex = 0;
+
+    ClearChoices();
+
+    if (story.canContinue)
+    {
+        string nextText = story.Continue().Trim();
+
+        PrepareDialoguePages(nextText);
+
+        continueButton.gameObject.SetActive(true);
+
+        return;
+    }
+
+    if (story.currentChoices.Count > 0)
+    {
+        ShowChoices();
+        return;
+    }
+
+    // O Ink terminou completamente.
+    bool shouldEndDemo = demoEndPending;
+
+    // Inicia o encerramento antes de finalizar a interação.
+    // Isso permite cancelar a saída do Barão antes
+    // do evento OnDialogueFinished ser disparado.
+    if (shouldEndDemo)
+{
+    Debug.Log("[DialogueManager] Solicitando encerramento da demo.");
+
+    if (MainHallEndController.Instance != null)
+    {
+        MainHallEndController.Instance.EndDemo();
+    }
+    else
+    {
+        Debug.LogError(
+            "[DialogueManager] MainHallEndController.Instance está NULL!"
+        );
+    }
+}
+    // Finaliza normalmente a interação.
+    // O evento OnDialogueFinished será disparado,
+    // mas a sequência do Barão já estará cancelada.
+    FinishInteraction();
+}
+
 
     private void PrepareDialoguePages(string fullText)
     {
@@ -358,9 +369,11 @@ public class DialogueManager : MonoBehaviour
         // Guarda a informação para encerrar a demo
         // somente depois que o Ink terminar a resposta.
         if (endsDemo)
-        {
-            demoEndPending = true;
-        }
+{
+    demoEndPending = true;
+
+    Debug.Log("[DialogueManager] Tag end_demo reconhecida!");
+}
 
         story.ChooseChoiceIndex(choiceIndex);
 

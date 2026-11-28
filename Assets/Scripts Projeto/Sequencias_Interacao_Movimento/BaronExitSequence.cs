@@ -15,6 +15,7 @@ public class BaronExitSequence : MonoBehaviour
     [SerializeField] private string baronID;
 
     private bool exitStarted;
+    private bool sequenceCancelled;
 
     private void OnEnable()
     {
@@ -44,6 +45,9 @@ public class BaronExitSequence : MonoBehaviour
         if (InteractionTracker.Instance == null ||
             !InteractionTracker.Instance.HasInteracted(baronID))
             return;
+
+if (sequenceCancelled)
+    return;
 
         StartBaronExit();
     }
@@ -75,4 +79,21 @@ public class BaronExitSequence : MonoBehaviour
 
         Debug.Log("Barão saiu do salão.");
     }
+
+    public void CancelExitSequence()
+{
+    sequenceCancelled = true;
+    exitStarted = true;
+
+    if (dialogueManager != null)
+        dialogueManager.OnDialogueFinished -= HandleDialogueFinished;
+
+    if (baronFollower != null)
+    {
+        baronFollower.OnDestinationReached -= HandleBaronReachedExit;
+        baronFollower.StopFollowing();
+    }
+
+    Debug.Log("Sequência de saída do Barão cancelada.");
+}
 }

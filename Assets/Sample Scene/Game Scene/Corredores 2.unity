@@ -1072,7 +1072,7 @@ AudioSource:
   m_GameObject: {fileID: 693833181}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 7646304372580486496, guid: 33f272407359f7a45bbf5b60b70a9a2a, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 92ba258d537d2434780f48d031b2bd33, type: 3}
   m_PlayOnAwake: 1
@@ -2296,7 +2296,7 @@ AudioSource:
   m_GameObject: {fileID: 1843336389}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -7202501611537336928, guid: 33f272407359f7a45bbf5b60b70a9a2a, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 3b32cb9402942ab41bd68d311914e40f, type: 3}
   m_PlayOnAwake: 1
@@ -2582,6 +2582,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoorInteraction
   doorHover: {fileID: 0}
+  portaTransicao: {fileID: 0}
 --- !u!61 &1935216293
 BoxCollider2D:
   m_ObjectHideFlags: 0

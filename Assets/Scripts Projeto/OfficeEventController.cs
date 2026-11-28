@@ -23,18 +23,20 @@ public class OfficeEventController : MonoBehaviour
     [SerializeField] private AudioClip keySound;
 
     [Header("Tempos")]
-    [SerializeField] private float handleDelay = 30f;
     [SerializeField] private float actionTimeLimit = 10f;
     [SerializeField] private float keyDelay = 2f;
 
     [Header("Referências")]
     [SerializeField] private OfficePlayerAction playerAction;
     [SerializeField] private SecurityGuardController securityGuard;
+    [SerializeField] private DocumentUI documentUI;
 
     [Header("Fala de Ícaro / Jogador")]
     [SerializeField] private string icaroName = "Ícaro";
+
     [TextArea(2, 4)]
     [SerializeField] private string icaroDialogue = "Ufa... Acho que ele já foi.";
+
     [SerializeField] private float icaroSpeechDuration = 2.5f;
 
     [Header("Efeitos de Hover")]
@@ -42,115 +44,80 @@ public class OfficeEventController : MonoBehaviour
     [SerializeField] private NPCHoverEffect doorHover;
 
     private OfficeState currentState = OfficeState.WaitingForDocument;
-
-    private Coroutine handleCoroutine;
     private Coroutine actionTimerCoroutine;
     private Coroutine hideCoroutine;
+    private Coroutine icaroSpeechCoroutine;
 
     private bool secondPageActivated;
     private bool documentsClosed;
+    private bool hasHiddenSuccessfully;
+    private bool caughtEndingStarted;
 
     public bool InspectionsLocked { get; private set; }
 
     private void Awake()
-{
-    if (Instance != null && Instance != this)
     {
-        Debug.LogError("[ESCRITÓRIO] Existe mais de um OfficeEventController na cena.");
-        Destroy(gameObject);
-        return;
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogError("[ESCRITÓRIO] Existe mais de um OfficeEventController na cena.");
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
+        if (deskHover != null)
+            deskHover.SetHoverEnabled(false);
+        else
+            Debug.LogError("[ESCRITÓRIO] Desk Hover não foi atribuído no Inspector.");
+
+        if (doorHover != null)
+            doorHover.SetHoverEnabled(false);
+        else
+            Debug.LogError("[ESCRITÓRIO] Door Hover não foi atribuído no Inspector.");
     }
 
-    Instance = this;
-
-    if (deskHover != null)
-        deskHover.SetHoverEnabled(false);
-    else
-        Debug.LogError("[ESCRITÓRIO] Desk Hover não foi atribuído no Inspector.");
-
-    if (doorHover != null)
-        doorHover.SetHoverEnabled(false);
-    else
-        Debug.LogError("[ESCRITÓRIO] Door Hover não foi atribuído no Inspector.");
-}
-
     // CHAMAR ASSIM QUE A SEGUNDA PÁGINA FOR ATIVADA.
-    
-public void OnSecondPageOpened()
+    public void OnSecondPageOpened()
 {
     if (secondPageActivated)
     {
-        Debug.LogWarning("[ESCRITÓRIO] A segunda página já havia sido ativada. O timer de 30s não será reiniciado.");
+        Debug.LogWarning("[ESCRITÓRIO] Segunda página já ativada.");
         return;
     }
 
     secondPageActivated = true;
 
     Debug.Log("[ESCRITÓRIO] Segunda página ativada.");
-    Debug.Log("[TIMER 30s] Iniciado pela ativação da segunda página.");
 
-    // A porta fica disponível desde a abertura da segunda página.
-    doorHover.SetHoverEnabled(true);
+    if (doorHover != null)
+        doorHover.SetHoverEnabled(true);
 
-    // A mesa ainda não fica disponível nesta etapa.
-    deskHover.SetHoverEnabled(false);
-
-    handleCoroutine = StartCoroutine(HandleDelayRoutine());
+    if (deskHover != null)
+        deskHover.SetHoverEnabled(false);
 }
-
-    private IEnumerator HandleDelayRoutine()
-    {
-        float elapsed = 0f;
-        int nextLog = 25;
-
-        while (elapsed < handleDelay)
-        {
-            yield return new WaitForSecondsRealtime(1f);
-            elapsed += 1f;
-
-            int remaining = Mathf.CeilToInt(handleDelay - elapsed);
-
-            if (remaining <= nextLog && remaining > 0)
-            {
-                Debug.Log($"[TIMER 30s] {remaining} segundos restantes.");
-                nextLog -= 5;
-            }
-        }
-
-        handleCoroutine = null;
-
-        Debug.Log("[TIMER 30s] Concluído.");
-
-        if (audioSource != null && handleSound != null)
-        {
-            audioSource.PlayOneShot(handleSound);
-            Debug.Log("[ÁUDIO] Som de maçaneta reproduzido.");
-        }
-        else
-        {
-            Debug.LogWarning("[ÁUDIO] handleSound ou audioSource não foi atribuído.");
-        }
-    }
 
     // CHAMAR QUANDO O JOGADOR FECHAR OS DOCUMENTOS.
     public void OnDocumentClosed()
     {
         if (!secondPageActivated)
         {
-            Debug.LogWarning("[DOCUMENTOS] Tentativa de fechar os documentos antes da ativação da segunda página.");
+            Debug.LogWarning("[DOCUMENTOS] A segunda página ainda não foi ativada.");
             return;
         }
 
         if (documentsClosed)
         {
-            Debug.LogWarning("[DOCUMENTOS] Os documentos já foram fechados. O timer de 10s não será reiniciado.");
+            Debug.LogWarning("[DOCUMENTOS] Os documentos já foram fechados.");
             return;
         }
+
+        if (currentState == OfficeState.Final)
+            return;
 
         documentsClosed = true;
         InspectionsLocked = true;
 
-        // Libera o hover somente depois que os documentos forem fechados.
         if (deskHover != null)
             deskHover.SetHoverEnabled(true);
 
@@ -158,8 +125,7 @@ public void OnSecondPageOpened()
             doorHover.SetHoverEnabled(true);
 
         Debug.Log("[HOVER] Mesa e porta liberadas após fechar os documentos.");
-
-        Debug.Log("[DOCUMENTOS] Documentos fechados após a leitura da segunda página.");
+        Debug.Log("[DOCUMENTOS] Documentos fechados.");
 
         if (audioSource != null && doorKnockSound != null)
         {
@@ -174,94 +140,91 @@ public void OnSecondPageOpened()
         actionTimerCoroutine = StartCoroutine(ActionTimerRoutine());
     }
 
+    // PRAZO DE 10 SEGUNDOS PARA ESCOLHER ENTRE A MESA E A PORTA.
     private IEnumerator ActionTimerRoutine()
+{
+    float elapsed = 0f;
+    int nextLog = Mathf.CeilToInt(actionTimeLimit) - 1;
+
+    while (elapsed < actionTimeLimit)
     {
-        float elapsed = 0f;
-        int nextLog = Mathf.CeilToInt(actionTimeLimit) - 1;
+        yield return new WaitForSecondsRealtime(1f);
+        elapsed += 1f;
 
-        while (elapsed < actionTimeLimit)
+        int remaining = Mathf.CeilToInt(actionTimeLimit - elapsed);
+
+        if (remaining > 0 && remaining <= nextLog)
         {
-            yield return new WaitForSecondsRealtime(1f);
-            elapsed += 1f;
-
-            int remaining = Mathf.CeilToInt(actionTimeLimit - elapsed);
-
-            if (remaining > 0 && remaining <= nextLog)
-            {
-                Debug.Log($"[TIMER 10s] {remaining} segundos restantes.");
-                nextLog = remaining - 1;
-            }
-        }
-
-        actionTimerCoroutine = null;
-
-        if (currentState == OfficeState.WaitingForAction)
-        {
-            currentState = OfficeState.WaitingForDoor;
-
-            Debug.Log("[TIMER 10s] Concluído. Somente a porta está disponível.");
-
-            currentState = OfficeState.WaitingForDoor;
-
-            deskHover.SetHoverEnabled(false);
-            doorHover.SetHoverEnabled(true);
-
-            Debug.Log("[HOVER] Mesa desabilitada. Porta continua disponível.");
-        }
-        else
-        {
-            Debug.Log("[TIMER 10s] Encerrado. O jogador já iniciou uma ação.");
+            Debug.Log($"[TIMER 10s] {remaining} segundos restantes.");
+            nextLog = remaining - 1;
         }
     }
 
+    actionTimerCoroutine = null;
+
+    if (currentState != OfficeState.WaitingForAction)
+        yield break;
+
+    Debug.Log("[TIMER 10s] Tempo esgotado. Ícaro será capturado.");
+
+    if (audioSource != null && handleSound != null)
+        audioSource.PlayOneShot(handleSound);
+
+    StartCaughtEnding();
+}
+
+    // INTERAÇÃO COM A MESA.
     public bool TryHide()
+{
+    if (currentState != OfficeState.WaitingForAction)
     {
-        if (currentState != OfficeState.WaitingForAction)
-        {
-            Debug.LogWarning("[AÇÃO] Não é possível esconder-se neste momento.");
-            return false;
-        }
-
-        if (playerAction == null)
-        {
-            Debug.LogError("[AÇÃO] OfficePlayerAction não foi atribuído.");
-            return false;
-        }
-
-        if (securityGuard == null)
-        {
-            Debug.LogError("[AÇÃO] SecurityGuardController não foi atribuído.");
-            return false;
-        }
-
-        if (actionTimerCoroutine != null)
-        {
-            StopCoroutine(actionTimerCoroutine);
-            actionTimerCoroutine = null;
-        }
-
-        if (!playerAction.HideUnderDesk())
-        {
-            Debug.LogError("[AÇÃO] Não foi possível esconder Ícaro.");
-            currentState = OfficeState.WaitingForDoor;
-            return false;
-        }
-
-        if (deskHover != null)
-            deskHover.SetHoverEnabled(false);
-
-        if (doorHover != null)
-            doorHover.SetHoverEnabled(false);
-
-        currentState = OfficeState.Hiding;
-
-        Debug.Log("[AÇÃO] Ícaro começou a se esconder debaixo da mesa.");
-
-        hideCoroutine = StartCoroutine(HideSequence());
-
-        return true;
+        Debug.LogWarning("[AÇÃO] Não é possível esconder-se neste momento.");
+        return false;
     }
 
+    if (playerAction == null)
+    {
+        Debug.LogError("[AÇÃO] OfficePlayerAction não foi atribuído.");
+        return false;
+    }
+
+    if (securityGuard == null)
+    {
+        Debug.LogError("[AÇÃO] SecurityGuardController não foi atribuído.");
+        return false;
+    }
+
+    // Primeiro verifica se Ícaro consegue se esconder.
+    if (!playerAction.HideUnderDesk())
+    {
+        Debug.LogError("[AÇÃO] Não foi possível esconder Ícaro.");
+        return false;
+    }
+
+    // Cancela os 10 segundos somente após esconder-se com sucesso.
+    if (actionTimerCoroutine != null)
+    {
+        StopCoroutine(actionTimerCoroutine);
+        actionTimerCoroutine = null;
+    }
+
+    hasHiddenSuccessfully = true;
+
+    if (deskHover != null)
+        deskHover.SetHoverEnabled(false);
+
+    if (doorHover != null)
+        doorHover.SetHoverEnabled(false);
+
+    currentState = OfficeState.Hiding;
+
+    Debug.Log("[AÇÃO] Ícaro começou a se esconder debaixo da mesa.");
+    Debug.Log("[TIMER 10s] Cancelado: Ícaro conseguiu se esconder.");
+
+    hideCoroutine = StartCoroutine(HideSequence());
+
+    return true;
+}
     private IEnumerator HideSequence()
     {
         Debug.Log($"[ESCONDERIJO] Aguardando {keyDelay} segundos para o som das chaves.");
@@ -284,16 +247,22 @@ public void OnSecondPageOpened()
 
         if (!started)
         {
-            Debug.LogError("[SEGURANÇA] Não foi possível iniciar a sequência. Recuperando Ícaro.");
+            Debug.LogError("[SEGURANÇA] Não foi possível iniciar a investigação. Recuperando Ícaro.");
             RecoverFromGuardFailure();
         }
     }
 
-
+    // CHAMADO QUANDO O SEGURANÇA TERMINA A INVESTIGAÇÃO NORMAL.
     private void OnGuardFinished()
     {
-       deskHover.SetHoverEnabled(false);
-    doorHover.SetHoverEnabled(true);
+        if (currentState == OfficeState.Final)
+            return;
+
+        if (deskHover != null)
+            deskHover.SetHoverEnabled(false);
+
+        if (doorHover != null)
+            doorHover.SetHoverEnabled(true);
 
         Debug.Log("[SEGURANÇA] Investigação concluída.");
 
@@ -301,11 +270,13 @@ public void OnSecondPageOpened()
 
         Debug.Log("[ICARO] Ícaro saiu debaixo da mesa.");
 
-        StartCoroutine(ShowIcaroSpeech());
-
         currentState = OfficeState.WaitingForDoor;
-    }
 
+        if (icaroSpeechCoroutine != null)
+            StopCoroutine(icaroSpeechCoroutine);
+
+        icaroSpeechCoroutine = StartCoroutine(ShowIcaroSpeech());
+    }
 
     private IEnumerator ShowIcaroSpeech()
     {
@@ -327,9 +298,12 @@ public void OnSecondPageOpened()
         securityGuard.HideSpeech();
 
         Debug.Log("[BALÃO] Fala de Ícaro encerrada.");
+
+        // Agora que a fala terminou, o segurança pode ser desativado.
+        securityGuard.gameObject.SetActive(false);
+
+        icaroSpeechCoroutine = null;
     }
-
-
 
     private void RecoverFromGuardFailure()
     {
@@ -345,13 +319,17 @@ public void OnSecondPageOpened()
         currentState = OfficeState.WaitingForDoor;
     }
 
-
+    // INTERAÇÃO COM A PORTA.
     public bool TryUseDoor()
     {
-        deskHover.SetHoverEnabled(false);
-        doorHover.SetHoverEnabled(false);
-       
-        if (currentState != OfficeState.WaitingForAction &&
+        if (!secondPageActivated)
+        {
+            Debug.LogWarning("[PORTA] A porta ainda não pode ser utilizada.");
+            return false;
+        }
+        // A porta pode ser usada tanto antes quanto depois de fechar os documentos.
+        if (currentState != OfficeState.WaitingForDocument &&
+            currentState != OfficeState.WaitingForAction &&
             currentState != OfficeState.WaitingForDoor)
         {
             Debug.LogWarning("[PORTA] A porta não pode ser utilizada neste momento.");
@@ -363,6 +341,8 @@ public void OnSecondPageOpened()
             Debug.LogError("[PORTA] OfficePlayerAction não foi atribuído.");
             return false;
         }
+
+        // Cancela os temporizadores: o jogador escolheu sair.
 
         if (actionTimerCoroutine != null)
         {
@@ -376,6 +356,18 @@ public void OnSecondPageOpened()
             hideCoroutine = null;
         }
 
+        if (icaroSpeechCoroutine != null)
+        {
+            StopCoroutine(icaroSpeechCoroutine);
+            icaroSpeechCoroutine = null;
+
+            if (securityGuard != null)
+            {
+                securityGuard.HideSpeech();
+                securityGuard.gameObject.SetActive(false);
+            }
+        }
+
         if (deskHover != null)
             deskHover.SetHoverEnabled(false);
 
@@ -384,6 +376,7 @@ public void OnSecondPageOpened()
 
         currentState = OfficeState.WalkingToDoor;
 
+        Debug.Log("[TIMER 30s] Cancelado: Ícaro escolheu abrir a porta.");
         Debug.Log("[AÇÃO] Caminhada de Ícaro até a porta iniciada.");
 
         bool started = playerAction.WalkToDoor(OnPlayerReachedDoor);
@@ -395,9 +388,12 @@ public void OnSecondPageOpened()
             return false;
         }
 
+
+
         return true;
     }
 
+    // FINAL DE FUGA PELA PORTA.
     private void OnPlayerReachedDoor()
     {
         if (currentState != OfficeState.WalkingToDoor)
@@ -407,26 +403,94 @@ public void OnSecondPageOpened()
 
         Debug.Log("[DEMO] Ícaro chegou à porta. Encerrando a demo.");
 
-        if (DemoEndController.Instance != null)
+        if (DemoEndController.Instance == null)
         {
-            DemoEndController.Instance.EndDemo();
+            Debug.LogError("[DEMO] DemoEndController não encontrado.");
+            return;
+        }
+
+        if (hasHiddenSuccessfully)
+        {
+            DemoEndController.Instance.EndHiddenAndEscaped();
         }
         else
         {
-            Debug.LogError("[DEMO] DemoEndController não encontrado.");
+            DemoEndController.Instance.EndDoorEscape();
         }
+    }
+
+    // FINAL DE CAPTURA: O JOGADOR NÃO SE ESCONDEU NEM SAIU A TEMPO.
+    private void StartCaughtEnding()
+{
+    if (caughtEndingStarted || currentState == OfficeState.Final)
+        return;
+
+    caughtEndingStarted = true;
+    currentState = OfficeState.Final;
+    InspectionsLocked = true;
+
+    if (actionTimerCoroutine != null)
+    {
+        StopCoroutine(actionTimerCoroutine);
+        actionTimerCoroutine = null;
+    }
+
+    if (hideCoroutine != null)
+    {
+        StopCoroutine(hideCoroutine);
+        hideCoroutine = null;
+    }
+
+
+    if (deskHover != null)
+        deskHover.SetHoverEnabled(false);
+
+    if (doorHover != null)
+        doorHover.SetHoverEnabled(false);
+
+    Debug.Log("[SEGURANÇA] O segurança está entrando para procurar Ícaro.");
+
+    if (securityGuard == null)
+    {
+        Debug.LogError("[SEGURANÇA] SecurityGuardController não foi atribuído.");
+        FinishCaughtEnding();
+        return;
+    }
+
+// Reativa o segurança antes de iniciar a sequência.
+if (!securityGuard.gameObject.activeSelf)
+{
+    securityGuard.gameObject.SetActive(true);
+}
+
+// Inicia a sequência de captura.
+    securityGuard.BeginCatchSequence(FinishCaughtEnding);
+}
+
+    private void FinishCaughtEnding()
+    {
+        if (DemoEndController.Instance == null)
+        {
+            Debug.LogError("[DEMO] DemoEndController não encontrado.");
+            return;
+        }
+
+        Debug.Log("[DEMO] Ícaro foi encontrado pelo segurança.");
+
+        DemoEndController.Instance.EndCaught();
     }
 
     private void OnDestroy()
     {
-        if (handleCoroutine != null)
-            StopCoroutine(handleCoroutine);
 
         if (actionTimerCoroutine != null)
             StopCoroutine(actionTimerCoroutine);
 
         if (hideCoroutine != null)
             StopCoroutine(hideCoroutine);
+
+        if (icaroSpeechCoroutine != null)
+            StopCoroutine(icaroSpeechCoroutine);
 
         if (Instance == this)
             Instance = null;
