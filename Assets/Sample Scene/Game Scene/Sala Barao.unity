@@ -3251,9 +3251,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OfficeEventController
   audioSource: {fileID: 977286570}
-  handleSound: {fileID: 0}
-  doorKnockSound: {fileID: 0}
-  keySound: {fileID: 0}
+  handleSound: {fileID: 8300000, guid: 7bb52ebe9d51555418944ffa58ff115e, type: 3}
+  doorKnockSound: {fileID: 8300000, guid: c1f6e07dfc4c3154c88f04b1e0f1aa99, type: 3}
+  keySound: {fileID: 8300000, guid: 8046a6650a8982748bd15b0f4be08715, type: 3}
   actionTimeLimit: 10
   keyDelay: 2
   playerAction: {fileID: 291723527}
